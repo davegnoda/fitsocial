@@ -12,7 +12,9 @@
       "Bash(npm run:*)",
       "mcp__plugin_firebase_firebase__firebase_get_environment",
       "mcp__plugin_firebase_firebase__firebase_login",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "mcp__plugin_firebase_firebase__firebase_update_environment",
+      "Bash(python3 -:*)"
     ]
   }
 }

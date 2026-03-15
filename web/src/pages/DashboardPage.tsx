@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useUser } from '../hooks/useUser'
-import { getTodayActivity } from '../services/activityService'
+import { getTodayActivity, saveActivity } from '../services/activityService'
+import { updateUserXP } from '../services/userService'
 import ActivityCard from '../components/ActivityCard'
+import LogWorkoutModal from '../components/LogWorkoutModal'
 import Layout from '../components/Layout'
 import type { Activity } from '../types'
 
@@ -10,8 +12,9 @@ const LEVEL_TITLES = ['', 'Rookie', 'Runner', 'Atleta', 'Campione', 'Leggenda']
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { profile } = useUser()
+  const { profile, refetch: refresh } = useUser()
   const [activity, setActivity] = useState<Activity | null>(null)
+  const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
     if (user) getTodayActivity(user.uid).then(setActivity).catch(() => {})
@@ -22,6 +25,15 @@ export default function DashboardPage() {
   const xp = profile?.xp ?? 0
   const xpToNext = level * 1000
   const xpPercent = Math.min((xp % xpToNext) / xpToNext * 100, 100)
+
+  const handleSaveActivity = async (a: Activity) => {
+    if (!user) return
+    await saveActivity(user.uid, a)
+    setActivity(a)
+    const xpGain = 100 + Math.floor((a.steps ?? 0) / 1000) + Math.floor(a.distance ?? 0) + 50
+    await updateUserXP(user.uid, xpGain)
+    refresh()
+  }
 
   const stats = [
     { icon: '👟', label: 'Passi', value: activity?.steps ?? 0, unit: 'passi oggi', goal: 10000, color: '#3b82f6', delay: 100 },
@@ -40,20 +52,15 @@ export default function DashboardPage() {
           borderBottom: '1px solid #1C1C24',
         }}
       >
-        {/* Background glow effect */}
         <div
           className="absolute top-0 right-0 w-64 h-64 pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle, rgba(10,132,255,0.12) 0%, transparent 70%)',
-          }}
+          style={{ background: 'radial-gradient(circle, rgba(10,132,255,0.12) 0%, transparent 70%)' }}
         />
 
-        {/* Date */}
         <p className="text-xs uppercase tracking-widest capitalize" style={{ color: '#0A84FF', fontWeight: 600 }}>
           {today}
         </p>
 
-        {/* Greeting */}
         <h1
           className="mt-1 leading-tight"
           style={{
@@ -131,7 +138,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Workouts */}
+      {/* Workouts logged today */}
       {activity?.workouts && activity.workouts.length > 0 && (
         <div className="px-4 pt-5">
           <h2 className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: '#8A8A96' }}>
@@ -146,9 +153,9 @@ export default function DashboardPage() {
               >
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
-                  style={{ background: 'rgba(255,69,0,0.1)', border: '1px solid rgba(255,69,0,0.2)' }}
+                  style={{ background: 'rgba(48,209,88,0.1)', border: '1px solid rgba(48,209,88,0.2)' }}
                 >
-                  {w.type === 'running' ? '🏃' : w.type === 'cycling' ? '🚴' : w.type === 'gym' ? '💪' : '🏋️'}
+                  {w.type === 'running' ? '🏃' : w.type === 'cycling' ? '🚴' : w.type === 'gym' ? '💪' : w.type === 'hiit' ? '⚡' : '🚶'}
                 </div>
                 <div className="flex-1">
                   <p className="font-bold capitalize" style={{ color: '#F8F8FC' }}>{w.type}</p>
@@ -157,7 +164,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 {w.verified && (
-                  <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ color: '#B8FF00', background: 'rgba(184,255,0,0.1)' }}>
+                  <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ color: '#30D158', background: 'rgba(48,209,88,0.1)' }}>
                     ✓ Verificato
                   </span>
                 )}
@@ -190,6 +197,32 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* FAB — Log Workout */}
+      <button
+        onClick={() => setShowModal(true)}
+        className="fixed z-40 flex items-center gap-2 font-bold text-sm uppercase tracking-wider rounded-2xl px-5 py-3.5 transition-all hover:scale-105 active:scale-95"
+        style={{
+          bottom: '88px',
+          right: '16px',
+          background: 'linear-gradient(135deg, #30D158, #0A84FF)',
+          color: '#FFFFFF',
+          boxShadow: '0 4px 24px rgba(48,209,88,0.4)',
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        Log
+      </button>
+
+      {showModal && (
+        <LogWorkoutModal
+          existing={activity}
+          onSave={handleSaveActivity}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </Layout>
   )
 }

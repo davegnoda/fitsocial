@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { getFriends, getPendingRequests, acceptFriendRequest } from '../services/friendService'
+import { getFriends, getPendingRequests, acceptFriendRequest, sendFriendRequest } from '../services/friendService'
+import { searchUserByEmail } from '../services/userService'
 import Layout from '../components/Layout'
 import type { UserProfile } from '../types'
 
@@ -74,13 +75,14 @@ export default function FriendsPage() {
     setSending(true)
     setSendMsg('')
     try {
-      // Find user by email — in real app this would be a Cloud Function
-      // For now show a success message
-      await new Promise(r => setTimeout(r, 800))
-      setSendMsg('✅ Richiesta inviata!')
+      const found = await searchUserByEmail(searchEmail)
+      if (!found) { setSendMsg('❌ Utente non trovato'); return }
+      if (found.uid === user.uid) { setSendMsg('❌ Sei tu stesso!'); return }
+      await sendFriendRequest(user.uid, found.uid)
+      setSendMsg('✅ Richiesta inviata a ' + found.name + '!')
       setSearchEmail('')
     } catch {
-      setSendMsg('❌ Utente non trovato')
+      setSendMsg('❌ Errore, riprova')
     } finally {
       setSending(false)
     }

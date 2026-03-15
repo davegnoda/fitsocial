@@ -1,12 +1,17 @@
+import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useUser } from '../hooks/useUser'
+import { updateUserProfile } from '../services/userService'
+import EditProfileModal from '../components/EditProfileModal'
 import Layout from '../components/Layout'
+import type { UserProfile } from '../types'
 
 const LEVEL_TITLES = ['', 'Rookie', 'Runner', 'Atleta', 'Campione', 'Leggenda']
 
 export default function ProfilePage() {
   const { logout } = useAuth()
-  const { profile } = useUser()
+  const { profile, refetch } = useUser()
+  const [showEdit, setShowEdit] = useState(false)
 
   const level = profile?.level ?? 1
   const xp = profile?.xp ?? 0
@@ -14,11 +19,17 @@ export default function ProfilePage() {
   const xpPercent = Math.min((xp % xpToNext) / xpToNext * 100, 100)
   const initials = profile?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() ?? '?'
 
+  const handleSaveProfile = async (data: Partial<UserProfile>) => {
+    if (!profile) return
+    await updateUserProfile(profile.uid, data)
+    refetch()
+  }
+
   const menuItems = [
-    { icon: '⌚', label: 'Connetti smartwatch', sub: 'Apple Watch, Garmin, Samsung', color: '#3D9EFF' },
-    { icon: '🏅', label: 'Fitness Passport', sub: 'I tuoi traguardi verificati', color: '#B8FF00' },
-    { icon: '⚙️', label: 'Impostazioni account', sub: 'Email, password, notifiche', color: '#8A8A96' },
-    { icon: '🔒', label: 'Privacy e GDPR', sub: 'Gestisci i tuoi dati', color: '#8A8A96' },
+    { icon: '⌚', label: 'Connetti smartwatch', sub: 'Apple Watch, Garmin, Samsung', color: '#3D9EFF', onClick: () => {} },
+    { icon: '🏅', label: 'Fitness Passport', sub: 'I tuoi traguardi verificati', color: '#B8FF00', onClick: () => {} },
+    { icon: '⚙️', label: 'Impostazioni account', sub: 'Nome, città, livello fitness', color: '#8A8A96', onClick: () => setShowEdit(true) },
+    { icon: '🔒', label: 'Privacy e GDPR', sub: 'Gestisci i tuoi dati', color: '#8A8A96', onClick: () => {} },
   ]
 
   return (
@@ -28,7 +39,6 @@ export default function ProfilePage() {
         className="relative px-5 pt-12 pb-8 overflow-hidden"
         style={{ background: 'linear-gradient(160deg, #1A0D2E 0%, #0D1A2E 60%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
       >
-        {/* Background glow */}
         <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(155,91,255,0.08) 0%, transparent 70%)' }} />
 
         {/* Avatar + Name */}
@@ -48,7 +58,7 @@ export default function ProfilePage() {
           >
             {initials}
           </div>
-          <div>
+          <div className="flex-1">
             <h1
               style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '1.8rem', fontWeight: 800, color: '#F8F8FC', lineHeight: 1 }}
             >
@@ -61,6 +71,15 @@ export default function ProfilePage() {
               </span>
             </p>
           </div>
+          <button
+            onClick={() => setShowEdit(true)}
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ background: 'rgba(191,90,242,0.1)', border: '1px solid rgba(191,90,242,0.25)' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#BF5AF2">
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+          </button>
         </div>
 
         {/* Stats row */}
@@ -106,6 +125,7 @@ export default function ProfilePage() {
         {menuItems.map((item, i) => (
           <button
             key={i}
+            onClick={item.onClick}
             className="w-full rounded-2xl p-4 flex items-center gap-4 text-left transition-all hover:opacity-80"
             style={{ background: '#141419', border: '1px solid #1C1C24' }}
           >
@@ -137,6 +157,14 @@ export default function ProfilePage() {
           <p className="text-sm font-bold" style={{ color: '#FF4500' }}>Esci dall'account</p>
         </button>
       </div>
+
+      {showEdit && profile && (
+        <EditProfileModal
+          profile={profile}
+          onSave={handleSaveProfile}
+          onClose={() => setShowEdit(false)}
+        />
+      )}
     </Layout>
   )
 }
