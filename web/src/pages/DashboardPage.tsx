@@ -4,7 +4,7 @@ import { useUser } from '../hooks/useUser'
 import { getTodayActivity } from '../services/activityService'
 import ActivityCard from '../components/ActivityCard'
 import Layout from '../components/Layout'
-import { Activity } from '../types'
+import type { Activity } from '../types'
 
 export default function DashboardPage() {
   const { user } = useAuth()

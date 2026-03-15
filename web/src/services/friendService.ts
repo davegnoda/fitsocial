@@ -1,6 +1,6 @@
 import { doc, setDoc, getDocs, collection, getDoc } from 'firebase/firestore'
 import { db } from '../firebase'
-import { UserProfile, FriendRequest } from '../types'
+import type { UserProfile, FriendRequest } from '../types'
 
 export async function sendFriendRequest(fromId: string, toId: string) {
   await setDoc(doc(db, 'users', fromId, 'friends', toId), { status: 'pending', direction: 'sent' })

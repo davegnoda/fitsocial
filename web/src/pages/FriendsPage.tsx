@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getFriends, getPendingRequests } from '../services/friendService'
 import Layout from '../components/Layout'
-import { UserProfile } from '../types'
+import type { UserProfile } from '../types'
 
 export default function FriendsPage() {
   const { user } = useAuth()
