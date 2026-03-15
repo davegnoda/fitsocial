@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function LoginPage() {
-  const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
+  const { loginWithGoogle } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -13,9 +15,8 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError('')
     try {
-      await login(email, password)
+      await signInWithEmailAndPassword(auth, email, password)
       navigate('/dashboard')
     } catch {
       setError('Email o password non validi')
@@ -25,109 +26,76 @@ export default function LoginPage() {
   }
 
   const handleGoogle = async () => {
-    setError('')
+    setLoading(true)
     try {
       await loginWithGoogle()
       navigate('/dashboard')
     } catch {
-      setError('Accesso con Google fallito')
+      setError('Errore con Google. Riprova.')
+    } finally {
+      setLoading(false)
     }
   }
 
+  const inputStyle = {
+    background: 'var(--bg-input)', border: '1px solid var(--border)',
+    color: 'var(--text)', padding: '14px 16px', fontSize: '14px',
+    borderRadius: '4px', outline: 'none', width: '100%',
+    fontFamily: 'DM Sans, sans-serif',
+  }
+
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-5 relative overflow-hidden"
-      style={{ background: '#060B17' }}
-    >
-      {/* Background effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '60%', height: '60%', background: 'radial-gradient(circle, rgba(255,69,0,0.06) 0%, transparent 70%)' }} />
-        <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(61,158,255,0.05) 0%, transparent 70%)' }} />
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
+      {/* Brand */}
+      <div style={{ padding: '48px 24px 0' }}>
+        <div className="flex items-end gap-1">
+          <span className="font-display" style={{ fontSize: '3.8rem', color: 'var(--lime)', lineHeight: 1 }}>FIT</span>
+          <span className="font-display" style={{ fontSize: '3.8rem', color: 'var(--text)', lineHeight: 1 }}>SOCIAL</span>
+        </div>
+        <p style={{ fontSize: '10px', color: 'var(--text-sub)', letterSpacing: '0.22em', fontWeight: 700, marginTop: '6px' }}>
+          ALLENATI · SFIDA · VINCI
+        </p>
       </div>
 
-      <div className="w-full max-w-sm relative z-10">
-        {/* Logo */}
-        <div className="text-center mb-10">
-          <h1
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '4rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em' }}
-          >
-            <span style={{ color: '#FF4500' }}>FIT</span>
-            <span style={{ color: '#F8F8FC' }}>SOCIAL</span>
-          </h1>
-          <p className="text-sm mt-2 uppercase tracking-widest font-bold" style={{ color: '#8A8A96' }}>
-            Allenati · Sfida · Vinci
-          </p>
-        </div>
+      <div style={{ height: '1px', background: 'var(--border)', margin: '28px 0 0' }} />
 
-        {/* Error */}
+      {/* Form area */}
+      <div style={{ flex: 1, padding: '28px 24px 40px', maxWidth: '440px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.2em', marginBottom: '20px' }}>
+          ACCEDI AL TUO ACCOUNT
+        </p>
+
         {error && (
-          <div
-            className="rounded-xl px-4 py-3 mb-4 text-sm font-medium"
-            style={{ background: 'rgba(255,69,0,0.1)', border: '1px solid rgba(255,69,0,0.3)', color: '#FF6B3D' }}
-          >
+          <div style={{ fontSize: '12px', color: 'var(--orange)', background: 'rgba(255,69,0,0.06)', border: '1px solid rgba(255,69,0,0.2)', padding: '10px 14px', borderRadius: '4px', marginBottom: '14px' }}>
             {error}
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
-            style={{
-              background: '#0E1424',
-              border: '1px solid #182035',
-              color: '#F8F8FC',
-            }}
-            onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
-            onBlur={e => e.target.style.borderColor = '#182035'}
-            required
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required
+            style={inputStyle}
+            onFocus={e => (e.target.style.borderColor = 'var(--lime)')}
+            onBlur={e => (e.target.style.borderColor = 'var(--border)')}
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
-            style={{
-              background: '#0E1424',
-              border: '1px solid #182035',
-              color: '#F8F8FC',
-            }}
-            onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
-            onBlur={e => e.target.style.borderColor = '#182035'}
-            required
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required
+            style={inputStyle}
+            onFocus={e => (e.target.style.borderColor = 'var(--lime)')}
+            onBlur={e => (e.target.style.borderColor = 'var(--border)')}
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl py-3.5 text-sm font-bold uppercase tracking-wider transition-all"
-            style={{
-              background: loading ? 'rgba(255,69,0,0.3)' : 'linear-gradient(135deg, #FF4500, #FF6A00)',
-              color: '#FFFFFF',
-              boxShadow: loading ? 'none' : '0 4px 24px rgba(255,69,0,0.35)',
-            }}
-          >
-            {loading ? 'Accesso in corso...' : 'Accedi →'}
+          <button type="submit" disabled={loading} className="font-display"
+            style={{ background: loading ? 'rgba(196,255,0,0.25)' : 'var(--lime)', color: '#000', padding: '14px', fontSize: '1.3rem', letterSpacing: '0.06em', borderRadius: '4px', border: 'none', marginTop: '6px', cursor: loading ? 'not-allowed' : 'pointer', transition: 'opacity 0.2s' }}>
+            {loading ? '...' : 'ACCEDI →'}
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px" style={{ background: '#182035' }} />
-          <span className="text-xs uppercase tracking-widest" style={{ color: '#283650' }}>oppure</span>
-          <div className="flex-1 h-px" style={{ background: '#182035' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '22px 0' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+          <span style={{ fontSize: '10px', color: 'var(--text-sub)', fontWeight: 700, letterSpacing: '0.12em' }}>OPPURE</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
         </div>
 
-        {/* Google */}
-        <button
-          onClick={handleGoogle}
-          className="w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:opacity-80"
-          style={{ background: '#0E1424', border: '1px solid #1E2D45', color: '#F8F8FC' }}
-        >
+        <button onClick={handleGoogle} disabled={loading}
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-strong)', color: 'var(--text)', padding: '13px', fontSize: '13px', fontWeight: 600, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer', width: '100%' }}>
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -137,12 +105,9 @@ export default function LoginPage() {
           Continua con Google
         </button>
 
-        {/* Register link */}
-        <p className="text-center mt-8 text-sm" style={{ color: '#8A8A96' }}>
+        <p style={{ textAlign: 'center', marginTop: '28px', fontSize: '13px', color: 'var(--text-sub)' }}>
           Non hai un account?{' '}
-          <Link to="/register" className="font-bold hover:opacity-80" style={{ color: '#FF4500' }}>
-            Registrati
-          </Link>
+          <Link to="/register" style={{ color: 'var(--lime)', fontWeight: 700, textDecoration: 'none' }}>Registrati</Link>
         </p>
       </div>
     </div>

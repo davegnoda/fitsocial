@@ -8,9 +8,9 @@ interface Props {
 }
 
 const FITNESS_LEVELS = [
-  { value: 'beginner', label: 'Principiante', icon: '🌱' },
-  { value: 'intermediate', label: 'Intermedio', icon: '🔥' },
-  { value: 'advanced', label: 'Avanzato', icon: '⚡' },
+  { value: 'beginner',     icon: '🌱', label: 'ROOKIE' },
+  { value: 'intermediate', icon: '🔥', label: 'PRO' },
+  { value: 'advanced',     icon: '⚡', label: 'ELITE' },
 ] as const
 
 export default function EditProfileModal({ profile, onSave, onClose }: Props) {
@@ -20,95 +20,68 @@ export default function EditProfileModal({ profile, onSave, onClose }: Props) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  const inputStyle = {
+    background: 'var(--bg-input)', border: '1px solid var(--border)',
+    color: 'var(--text)', padding: '13px 14px', fontSize: '14px',
+    borderRadius: '4px', outline: 'none', width: '100%',
+    fontFamily: 'DM Sans, sans-serif',
+  }
+
   const handleSave = async () => {
     if (!name.trim()) return
     setSaving(true)
     await onSave({ name: name.trim(), city: city.trim(), fitnessLevel })
-    setSaving(false)
-    setSaved(true)
+    setSaving(false); setSaved(true)
     setTimeout(onClose, 700)
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end"
-      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div
-        className="w-full rounded-t-3xl px-5 pt-5 pb-8"
-        style={{ background: '#0A0F1E', border: '1px solid #182035', borderBottom: 'none' }}
-      >
-        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: '#1E2D45' }} />
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div style={{ width: '100%', background: 'var(--bg-surface)', borderTop: '1px solid var(--border)', padding: '20px 20px 40px' }}>
+        <div style={{ width: 40, height: 3, background: 'var(--border-strong)', borderRadius: '2px', margin: '0 auto 20px' }} />
 
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p className="text-xs uppercase tracking-widest font-bold" style={{ color: '#BF5AF2' }}>Modifica</p>
-            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '2rem', fontWeight: 800, color: '#F8F8FC', lineHeight: 1 }}>
-              PROFILO
-            </h2>
+            <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--purple)', letterSpacing: '0.2em' }}>MODIFICA</p>
+            <h2 className="font-display" style={{ fontSize: '2rem', color: 'var(--text)', lineHeight: 1 }}>PROFILO</h2>
           </div>
-          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: '#182035', color: '#8A8A96', fontSize: '1.2rem' }}>
+          <button onClick={onClose}
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-strong)', color: 'var(--text-sub)', width: 36, height: 36, borderRadius: '4px', fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             ×
           </button>
         </div>
 
-        <div className="space-y-3 mb-5">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
           <div>
-            <label className="text-xs uppercase tracking-widest font-bold block mb-2" style={{ color: '#8A8A96' }}>Nome *</label>
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              className="w-full rounded-xl px-4 py-3.5 text-sm outline-none"
-              style={{ background: '#0E1424', border: '1px solid #182035', color: '#F8F8FC' }}
-              onFocus={e => (e.target.style.borderColor = 'rgba(191,90,242,0.5)')}
-              onBlur={e => (e.target.style.borderColor = '#182035')}
-            />
+            <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.15em', marginBottom: '6px' }}>NOME *</p>
+            <input type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle}
+              onFocus={e => (e.target.style.borderColor = 'var(--purple)')}
+              onBlur={e => (e.target.style.borderColor = 'var(--border)')} />
           </div>
           <div>
-            <label className="text-xs uppercase tracking-widest font-bold block mb-2" style={{ color: '#8A8A96' }}>Città</label>
-            <input
-              type="text"
-              value={city}
-              onChange={e => setCity(e.target.value)}
-              className="w-full rounded-xl px-4 py-3.5 text-sm outline-none"
-              style={{ background: '#0E1424', border: '1px solid #182035', color: '#F8F8FC' }}
-              onFocus={e => (e.target.style.borderColor = 'rgba(191,90,242,0.5)')}
-              onBlur={e => (e.target.style.borderColor = '#182035')}
-            />
+            <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.15em', marginBottom: '6px' }}>CITTÀ</p>
+            <input type="text" value={city} onChange={e => setCity(e.target.value)} style={inputStyle}
+              onFocus={e => (e.target.style.borderColor = 'var(--purple)')}
+              onBlur={e => (e.target.style.borderColor = 'var(--border)')} />
           </div>
         </div>
 
-        <p className="text-xs uppercase tracking-widest font-bold mb-3" style={{ color: '#8A8A96' }}>Livello fitness</p>
-        <div className="grid grid-cols-3 gap-2 mb-6">
+        <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.15em', marginBottom: '10px' }}>LIVELLO FITNESS</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '6px', marginBottom: '20px' }}>
           {FITNESS_LEVELS.map(l => (
-            <button
-              key={l.value}
-              onClick={() => setFitnessLevel(l.value)}
-              className="rounded-xl py-3 flex flex-col items-center gap-1 transition-all"
-              style={{
-                background: fitnessLevel === l.value ? 'rgba(191,90,242,0.12)' : '#0E1424',
-                border: fitnessLevel === l.value ? '1px solid rgba(191,90,242,0.4)' : '1px solid #182035',
-              }}
-            >
+            <button key={l.value} onClick={() => setFitnessLevel(l.value)}
+              className="font-display flex flex-col items-center gap-1"
+              style={{ padding: '12px 6px', background: fitnessLevel === l.value ? 'rgba(168,85,247,0.1)' : 'var(--bg-card)', border: `1px solid ${fitnessLevel === l.value ? 'var(--purple)' : 'var(--border)'}`, borderRadius: '4px', cursor: 'pointer' }}>
               <span style={{ fontSize: '1.4rem' }}>{l.icon}</span>
-              <span className="text-xs font-bold" style={{ color: fitnessLevel === l.value ? '#BF5AF2' : '#8A8A96' }}>{l.label}</span>
+              <span style={{ fontSize: '0.85rem', color: fitnessLevel === l.value ? 'var(--purple)' : 'var(--text-sub)', letterSpacing: '0.06em' }}>{l.label}</span>
             </button>
           ))}
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={saving || saved || !name.trim()}
-          className="w-full rounded-2xl py-4 font-bold uppercase tracking-wider text-sm transition-all"
-          style={{
-            background: saved ? 'rgba(191,90,242,0.2)' : saving || !name.trim() ? 'rgba(191,90,242,0.2)' : 'linear-gradient(135deg, #BF5AF2, #0A84FF)',
-            color: saved ? '#BF5AF2' : '#FFFFFF',
-            boxShadow: saving || saved || !name.trim() ? 'none' : '0 4px 24px rgba(191,90,242,0.3)',
-          }}
-        >
-          {saved ? '✓ Salvato!' : saving ? 'Salvataggio...' : 'Salva profilo →'}
+        <button onClick={handleSave} disabled={saving || saved || !name.trim()} className="font-display w-full"
+          style={{ background: saved ? 'rgba(168,85,247,0.15)' : !name.trim() || saving ? 'rgba(168,85,247,0.2)' : 'var(--purple)', color: saved ? 'var(--purple)' : '#fff', padding: '14px', fontSize: '1.2rem', letterSpacing: '0.06em', borderRadius: '4px', border: 'none', cursor: !name.trim() || saving ? 'not-allowed' : 'pointer' }}>
+          {saved ? '✓ SALVATO' : saving ? '...' : 'SALVA PROFILO →'}
         </button>
       </div>
     </div>

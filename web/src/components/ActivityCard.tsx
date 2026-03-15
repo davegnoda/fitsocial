@@ -1,4 +1,4 @@
-interface ActivityCardProps {
+interface Props {
   icon: string
   label: string
   value: number
@@ -8,73 +8,50 @@ interface ActivityCardProps {
   delay?: number
 }
 
-const ACCENT_MAP: Record<string, { glow: string; bar: string; bg: string }> = {
-  '#3b82f6': { glow: '10,132,255',    bar: '#0A84FF', bg: 'rgba(10,132,255,0.1)' },
-  '#f97316': { glow: '255,159,10',    bar: '#FF9F0A', bg: 'rgba(255,159,10,0.1)' },
-  '#10b981': { glow: '48,209,88',     bar: '#30D158', bg: 'rgba(48,209,88,0.1)' },
-  '#ef4444': { glow: '255,69,58',     bar: '#FF453A', bg: 'rgba(255,69,58,0.1)' },
+const COLOR_MAP: Record<string, string> = {
+  '#3b82f6': 'var(--blue)',
+  '#f97316': 'var(--orange)',
+  '#10b981': 'var(--green)',
+  '#ef4444': 'var(--pink)',
 }
 
-export default function ActivityCard({ icon, label, value, unit, goal, color, delay = 0 }: ActivityCardProps) {
-  const percent = Math.min((value / goal) * 100, 100)
-  const accent = ACCENT_MAP[color] ?? { glow: '255,69,0', bar: '#FF4500', bg: 'rgba(255,69,0,0.08)' }
-  const displayValue = typeof value === 'number' && value % 1 !== 0 ? value.toFixed(1) : value.toLocaleString()
+export default function ActivityCard({ icon, label, value, unit, goal, color, delay = 0 }: Props) {
+  const c = COLOR_MAP[color] ?? color
+  const pct = Math.min(100, Math.round((value / goal) * 100))
+  const displayValue = value >= 1000 ? (value / 1000).toFixed(1) + 'k' : String(value)
 
   return (
     <div
-      className="rounded-2xl p-4 relative overflow-hidden"
+      className="animate-up"
       style={{
-        background: `linear-gradient(135deg, #0E1424 0%, #0A0F1E 100%)`,
-        border: '1px solid #182035',
         animationDelay: `${delay}ms`,
-        animation: 'slide-up 0.4s ease both',
+        background: 'var(--bg-card)',
+        borderLeft: `3px solid ${c}`,
+        padding: '14px 16px 12px',
+        borderRadius: '0 6px 6px 0',
       }}
     >
-      {/* Background glow */}
-      <div
-        className="absolute inset-0 opacity-20 pointer-events-none"
-        style={{
-          background: `radial-gradient(circle at 80% 20%, rgba(${accent.glow},0.3) 0%, transparent 60%)`,
-        }}
-      />
-
-      {/* Top row */}
-      <div className="flex items-center justify-between mb-3 relative">
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-base"
-          style={{ background: accent.bg, border: `1px solid rgba(${accent.glow}, 0.2)` }}
-        >
-          {icon}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span style={{ fontSize: '16px' }}>{icon}</span>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            {label}
+          </span>
         </div>
-        <span
-          className="text-xs font-bold px-2 py-0.5 rounded-full"
-          style={{ color: accent.bar, background: `rgba(${accent.glow}, 0.1)` }}
-        >
-          {Math.round(percent)}%
+        <span style={{ fontSize: '11px', fontWeight: 700, color: c }}>
+          {pct}%
         </span>
       </div>
-
-      {/* Value */}
-      <p
-        className="text-4xl leading-none relative"
-        style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, color: '#F8F8FC' }}
-      >
-        {displayValue}
-      </p>
-
-      {/* Label */}
-      <p className="text-xs mt-1 relative" style={{ color: '#8A8A96' }}>{unit}</p>
-      <p className="text-sm font-600 mt-0.5 relative" style={{ color: '#D0D0D8', fontWeight: 600 }}>{label}</p>
-
-      {/* Progress bar */}
-      <div className="mt-3 rounded-full relative" style={{ height: '3px', background: '#182035' }}>
+      <div className="flex items-end justify-between">
+        <span className="font-display" style={{ fontSize: '2.6rem', color: 'var(--text)', lineHeight: 1 }}>
+          {displayValue}
+        </span>
+        <span style={{ fontSize: '11px', color: 'var(--text-sub)', paddingBottom: '4px' }}>{unit}</span>
+      </div>
+      <div style={{ height: '2px', background: 'var(--border)', marginTop: '10px', borderRadius: '1px', overflow: 'hidden' }}>
         <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{
-            width: `${percent}%`,
-            background: `linear-gradient(90deg, ${accent.bar}, rgba(${accent.glow}, 0.5))`,
-            boxShadow: `0 0 8px rgba(${accent.glow}, 0.5)`,
-          }}
+          className="animate-fill"
+          style={{ width: `${pct}%`, height: '100%', background: c, animationDelay: `${delay + 200}ms` }}
         />
       </div>
     </div>
