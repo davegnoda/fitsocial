@@ -1,6 +1,6 @@
 import { doc, setDoc, getDoc, collection, getDocs, orderBy, query, limit } from 'firebase/firestore'
 import { db } from '../firebase'
-import { Activity } from '../types'
+import type { Activity } from '../types'
 
 export async function getTodayActivity(userId: string): Promise<Activity | null> {
   const today = new Date().toISOString().split('T')[0]

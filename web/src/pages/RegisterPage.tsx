@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../firebase'
 import { createUserProfile } from '../services/userService'
 
 export default function RegisterPage() {
-  const { register, user } = useAuth()
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -18,8 +18,9 @@ export default function RegisterPage() {
     if (password.length < 6) { setError('Password minimo 6 caratteri'); return }
     setLoading(true)
     try {
-      await register(email, password)
-      // createUserProfile verrà chiamato dopo che user è disponibile
+      const result = await createUserWithEmailAndPassword(auth, email, password)
+      await createUserProfile(result.user.uid, { name, email, city })
+      navigate('/dashboard')
     } catch {
       setError('Errore durante la registrazione')
     } finally {

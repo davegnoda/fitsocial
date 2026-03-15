@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { getActiveChallenges, joinChallenge } from '../services/challengeService'
 import LeaderboardCard from '../components/LeaderboardCard'
 import Layout from '../components/Layout'
-import { Challenge } from '../types'
+import type { Challenge } from '../types'
 
 const levelColors: Record<string, string> = {
   beginner: 'bg-green-100 text-green-700',

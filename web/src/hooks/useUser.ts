@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile } from '../services/userService'
-import { UserProfile } from '../types'
+import type { UserProfile } from '../types'
 
 export function useUser() {
   const { user } = useAuth()

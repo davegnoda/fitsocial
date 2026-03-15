@@ -1,6 +1,6 @@
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase'
-import { UserProfile } from '../types'
+import type { UserProfile } from '../types'
 
 export async function createUserProfile(uid: string, data: Partial<UserProfile>) {
   await setDoc(doc(db, 'users', uid), {

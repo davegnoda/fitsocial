@@ -1,6 +1,6 @@
 import { collection, addDoc, getDocs, doc, updateDoc, arrayUnion, query, where } from 'firebase/firestore'
 import { db } from '../firebase'
-import { Challenge } from '../types'
+import type { Challenge } from '../types'
 
 export async function createChallenge(challenge: Omit<Challenge, 'id'>): Promise<string> {
   const ref = await addDoc(collection(db, 'challenges'), challenge)
