@@ -9,10 +9,10 @@ interface ActivityCardProps {
 }
 
 const ACCENT_MAP: Record<string, { glow: string; bar: string; bg: string }> = {
-  '#3b82f6': { glow: '59,130,246', bar: '#3D9EFF', bg: 'rgba(61,158,255,0.08)' },
-  '#f97316': { glow: '255,69,0',   bar: '#FF4500', bg: 'rgba(255,69,0,0.08)' },
-  '#10b981': { glow: '184,255,0',  bar: '#B8FF00', bg: 'rgba(184,255,0,0.08)' },
-  '#ef4444': { glow: '255,69,100', bar: '#FF4564', bg: 'rgba(255,69,100,0.08)' },
+  '#3b82f6': { glow: '10,132,255',    bar: '#0A84FF', bg: 'rgba(10,132,255,0.1)' },
+  '#f97316': { glow: '255,159,10',    bar: '#FF9F0A', bg: 'rgba(255,159,10,0.1)' },
+  '#10b981': { glow: '48,209,88',     bar: '#30D158', bg: 'rgba(48,209,88,0.1)' },
+  '#ef4444': { glow: '255,69,58',     bar: '#FF453A', bg: 'rgba(255,69,58,0.1)' },
 }
 
 export default function ActivityCard({ icon, label, value, unit, goal, color, delay = 0 }: ActivityCardProps) {

@@ -26,7 +26,7 @@ export default function ProfilePage() {
       {/* Profile Header */}
       <div
         className="relative px-5 pt-12 pb-8 overflow-hidden"
-        style={{ background: 'linear-gradient(180deg, #0F0F14 0%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
+        style={{ background: 'linear-gradient(160deg, #1A0D2E 0%, #0D1A2E 60%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
       >
         {/* Background glow */}
         <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(155,91,255,0.08) 0%, transparent 70%)' }} />
@@ -38,8 +38,8 @@ export default function ProfilePage() {
             style={{
               width: '72px',
               height: '72px',
-              background: 'linear-gradient(135deg, rgba(255,69,0,0.3), rgba(155,91,255,0.3))',
-              border: '2px solid rgba(255,69,0,0.4)',
+              background: 'linear-gradient(135deg, #0A84FF, #BF5AF2)',
+              border: '2px solid rgba(10,132,255,0.4)',
               color: '#F8F8FC',
               fontFamily: "'Barlow Condensed', sans-serif",
               boxShadow: '0 0 30px rgba(255,69,0,0.2)',
@@ -95,7 +95,7 @@ export default function ProfilePage() {
           <div className="rounded-full" style={{ height: '4px', background: '#1C1C24' }}>
             <div
               className="h-full rounded-full"
-              style={{ width: `${xpPercent}%`, background: 'linear-gradient(90deg, #B8FF00, #9B5BFF)', boxShadow: '0 0 10px rgba(184,255,0,0.3)' }}
+              style={{ width: `${xpPercent}%`, background: 'linear-gradient(90deg, #0A84FF, #BF5AF2)', boxShadow: '0 0 10px rgba(10,132,255,0.3)' }}
             />
           </div>
         </div>

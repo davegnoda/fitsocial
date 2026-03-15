@@ -36,7 +36,7 @@ export default function DashboardPage() {
       <div
         className="relative px-5 pt-12 pb-6 overflow-hidden"
         style={{
-          background: 'linear-gradient(180deg, #0F0F14 0%, #07070A 100%)',
+          background: 'linear-gradient(160deg, #0D1B3E 0%, #1A0D2E 50%, #07070A 100%)',
           borderBottom: '1px solid #1C1C24',
         }}
       >
@@ -44,12 +44,12 @@ export default function DashboardPage() {
         <div
           className="absolute top-0 right-0 w-64 h-64 pointer-events-none"
           style={{
-            background: 'radial-gradient(circle, rgba(255,69,0,0.08) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(10,132,255,0.12) 0%, transparent 70%)',
           }}
         />
 
         {/* Date */}
-        <p className="text-xs uppercase tracking-widest capitalize" style={{ color: '#FF4500', fontWeight: 600 }}>
+        <p className="text-xs uppercase tracking-widest capitalize" style={{ color: '#0A84FF', fontWeight: 600 }}>
           {today}
         </p>
 
@@ -65,7 +65,12 @@ export default function DashboardPage() {
           }}
         >
           CIAO,<br />
-          <span style={{ color: '#FF4500' }}>
+          <span style={{
+            background: 'linear-gradient(90deg, #0A84FF, #BF5AF2)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>
             {(profile?.name?.split(' ')[0] ?? 'ATLETA').toUpperCase()}
           </span>
         </h1>
@@ -105,8 +110,8 @@ export default function DashboardPage() {
               className="h-full rounded-full transition-all duration-1000"
               style={{
                 width: `${xpPercent}%`,
-                background: 'linear-gradient(90deg, #B8FF00, #3D9EFF)',
-                boxShadow: '0 0 12px rgba(184,255,0,0.4)',
+                background: 'linear-gradient(90deg, #0A84FF, #BF5AF2)',
+                boxShadow: '0 0 12px rgba(10,132,255,0.4)',
               }}
             />
           </div>

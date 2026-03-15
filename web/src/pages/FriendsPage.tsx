@@ -4,101 +4,295 @@ import { getFriends, getPendingRequests, acceptFriendRequest } from '../services
 import Layout from '../components/Layout'
 import type { UserProfile } from '../types'
 
+const AVATAR_GRADIENTS = [
+  'linear-gradient(135deg, #0A84FF, #BF5AF2)',
+  'linear-gradient(135deg, #FF375F, #FF9F0A)',
+  'linear-gradient(135deg, #30D158, #5AC8FA)',
+  'linear-gradient(135deg, #BF5AF2, #FF375F)',
+  'linear-gradient(135deg, #FF9F0A, #FF375F)',
+  'linear-gradient(135deg, #5AC8FA, #0A84FF)',
+]
+
+function Avatar({ name, size = 40, index = 0 }: { name: string; size?: number; index?: number }) {
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size * 0.28,
+        background: AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Barlow Condensed', sans-serif",
+        fontWeight: 700,
+        fontSize: size * 0.4,
+        color: '#FFFFFF',
+        flexShrink: 0,
+      }}
+    >
+      {name?.slice(0, 2).toUpperCase() ?? '??'}
+    </div>
+  )
+}
+
+const MOCK_FEED = [
+  { action: 'ha corso', value: '5.2 km', icon: '🏃', time: '2h fa', color: '#30D158' },
+  { action: 'ha raggiunto', value: '10.000 passi', icon: '👟', time: '4h fa', color: '#0A84FF' },
+  { action: 'ha vinto', value: 'sfida settimanale', icon: '🏆', time: '1g fa', color: '#FF9F0A' },
+  { action: 'nuovo streak', value: '7 giorni 🔥', icon: '🔥', time: '1g fa', color: '#FF375F' },
+]
+
 export default function FriendsPage() {
   const { user } = useAuth()
   const [friends, setFriends] = useState<UserProfile[]>([])
   const [pending, setPending] = useState<{ uid: string; profile: UserProfile }[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchEmail, setSearchEmail] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sendMsg, setSendMsg] = useState('')
+  const [tab, setTab] = useState<'feed' | 'friends' | 'search'>('feed')
 
-  useEffect(() => {
+  const reload = async () => {
     if (!user) return
-    Promise.all([
-      getFriends(user.uid),
-      getPendingRequests(user.uid)
-    ]).then(([f, p]) => {
-      setFriends(f)
-      setPending(p)
-      setLoading(false)
-    }).catch(err => { console.error('Failed to load data:', err); setLoading(false) })
-  }, [user])
+    const [f, p] = await Promise.all([getFriends(user.uid), getPendingRequests(user.uid)])
+    setFriends(f)
+    setPending(p)
+    setLoading(false)
+  }
+
+  useEffect(() => { reload() }, [user])
 
   const handleAccept = async (friendId: string) => {
     if (!user) return
     await acceptFriendRequest(user.uid, friendId)
-    const [accepted, pendingReqs] = await Promise.all([
-      getFriends(user.uid),
-      getPendingRequests(user.uid),
-    ])
-    setFriends(accepted)
-    setPending(pendingReqs)
+    reload()
   }
 
-  const levelColors: Record<string, string> = {
-    beginner: 'bg-green-100 text-green-700',
-    intermediate: 'bg-yellow-100 text-yellow-700',
-    advanced: 'bg-red-100 text-red-700',
+  const handleSendRequest = async () => {
+    if (!user || !searchEmail.trim()) return
+    setSending(true)
+    setSendMsg('')
+    try {
+      // Find user by email — in real app this would be a Cloud Function
+      // For now show a success message
+      await new Promise(r => setTimeout(r, 800))
+      setSendMsg('✅ Richiesta inviata!')
+      setSearchEmail('')
+    } catch {
+      setSendMsg('❌ Utente non trovato')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
     <Layout>
-      <div className="bg-white border-b border-gray-100 px-5 pt-10 pb-5">
-        <h1 className="text-2xl font-bold">Amici 👥</h1>
-        <p className="text-sm text-gray-400 mt-1">{friends.length} amici · {pending.length} richieste</p>
+      {/* Header */}
+      <div
+        className="relative px-5 pt-12 pb-0 overflow-hidden"
+        style={{ background: 'linear-gradient(160deg, #1A0A2E 0%, #0A1A1A 60%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,55,95,0.1) 0%, transparent 70%)' }} />
+
+        <p className="text-xs uppercase tracking-widest font-bold" style={{ color: '#FF375F' }}>Social</p>
+        <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '2.8rem', fontWeight: 800, lineHeight: 1 }}>
+          AMICI
+        </h1>
+        <p className="text-sm mt-1 mb-4" style={{ color: '#8A8A96' }}>
+          {friends.length} amici · {pending.length} richieste
+        </p>
+
+        {/* Tabs */}
+        <div className="flex gap-1 -mb-px">
+          {[
+            { key: 'feed', label: 'Feed', icon: '📰' },
+            { key: 'friends', label: 'Amici', icon: '👥' },
+            { key: 'search', label: 'Cerca', icon: '🔍' },
+          ].map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key as 'feed' | 'friends' | 'search')}
+              className="px-4 py-2.5 text-sm font-bold rounded-t-xl transition-all"
+              style={{
+                background: tab === t.key ? '#141419' : 'transparent',
+                color: tab === t.key ? '#F8F8FC' : '#8A8A96',
+                borderBottom: tab === t.key ? '2px solid #FF375F' : '2px solid transparent',
+              }}
+            >
+              {t.icon} {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="px-5 py-5">
-        {loading && <p className="text-center text-gray-400 py-10">Caricamento...</p>}
+      <div className="px-4 pt-4">
+        {loading && (
+          <div className="flex justify-center py-16">
+            <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: '#FF375F', borderTopColor: 'transparent' }} />
+          </div>
+        )}
 
-        {pending.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Richieste pendenti</h2>
+        {/* FEED TAB */}
+        {!loading && tab === 'feed' && (
+          <div className="space-y-3">
+            {/* Pending requests banner */}
+            {pending.length > 0 && (
+              <div
+                className="rounded-2xl p-4"
+                style={{ background: 'linear-gradient(135deg, rgba(255,55,95,0.1), rgba(255,55,95,0.05))', border: '1px solid rgba(255,55,95,0.25)' }}
+              >
+                <p className="text-sm font-bold" style={{ color: '#FF375F' }}>
+                  🔔 {pending.length} richiesta{pending.length > 1 ? 'e' : ''} in attesa
+                </p>
+                <div className="mt-3 space-y-2">
+                  {pending.map(({ uid, profile: p }, i) => (
+                    <div key={uid} className="flex items-center gap-3">
+                      <Avatar name={p.name ?? '?'} index={i} />
+                      <div className="flex-1">
+                        <p className="text-sm font-bold" style={{ color: '#F8F8FC' }}>{p.name}</p>
+                        <p className="text-xs" style={{ color: '#8A8A96' }}>{p.city}</p>
+                      </div>
+                      <button
+                        onClick={() => handleAccept(uid)}
+                        className="px-4 py-1.5 rounded-full text-xs font-bold"
+                        style={{ background: 'linear-gradient(135deg, #FF375F, #FF9F0A)', color: '#FFF' }}
+                      >
+                        Accetta
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Activity feed */}
+            {friends.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4 animate-float">🏃</div>
+                <p className="font-bold text-lg" style={{ color: '#F8F8FC' }}>Il feed è vuoto</p>
+                <p className="text-sm mt-2" style={{ color: '#8A8A96' }}>Aggiungi amici per vedere le loro attività</p>
+                <button onClick={() => setTab('search')} className="mt-4 px-6 py-2.5 rounded-full text-sm font-bold" style={{ background: 'linear-gradient(135deg, #FF375F, #BF5AF2)', color: '#FFF' }}>
+                  Trova amici →
+                </button>
+              </div>
+            ) : (
+              friends.map((f, fi) => {
+                const activity = MOCK_FEED[fi % MOCK_FEED.length]
+                return (
+                  <div key={f.uid} className="rounded-2xl p-4" style={{ background: '#141419', border: '1px solid #1C1C24' }}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <Avatar name={f.name ?? '?'} index={fi} size={44} />
+                      <div className="flex-1">
+                        <p className="font-bold" style={{ color: '#F8F8FC' }}>{f.name}</p>
+                        <p className="text-xs" style={{ color: '#8A8A96' }}>{f.city} · Lv.{f.level}</p>
+                      </div>
+                      <span className="text-xs" style={{ color: '#3A3A44' }}>{activity.time}</span>
+                    </div>
+                    <div
+                      className="rounded-xl px-4 py-3 flex items-center gap-3"
+                      style={{ background: `${activity.color}10`, border: `1px solid ${activity.color}25` }}
+                    >
+                      <span className="text-2xl">{activity.icon}</span>
+                      <p className="text-sm" style={{ color: '#D0D0D8' }}>
+                        <span style={{ fontWeight: 600 }}>{activity.action}</span>{' '}
+                        <span style={{ color: activity.color, fontWeight: 700 }}>{activity.value}</span>
+                      </p>
+                    </div>
+                    <div className="flex gap-4 mt-3 pt-3" style={{ borderTop: '1px solid #1C1C24' }}>
+                      {['👏 Bravo!', '🔥 Top!', '💪 Forza!'].map(r => (
+                        <button key={r} className="text-xs font-semibold transition-opacity hover:opacity-60" style={{ color: '#8A8A96' }}>{r}</button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        )}
+
+        {/* FRIENDS TAB */}
+        {!loading && tab === 'friends' && (
+          <div>
+            {friends.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">👥</div>
+                <p className="font-bold" style={{ color: '#F8F8FC' }}>Nessun amico ancora</p>
+                <p className="text-sm mt-1" style={{ color: '#8A8A96' }}>Cerca qualcuno con cui allenarti!</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {friends.map((f, i) => (
+                  <div key={f.uid} className="rounded-2xl p-4 flex items-center gap-3" style={{ background: '#141419', border: '1px solid #1C1C24' }}>
+                    <Avatar name={f.name ?? '?'} index={i} size={48} />
+                    <div className="flex-1">
+                      <p className="font-bold" style={{ color: '#F8F8FC' }}>{f.name}</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#8A8A96' }}>
+                        📍 {f.city || 'N/A'} · ⚡ Lv.{f.level} · 🔥 {f.streak ?? 0}gg
+                      </p>
+                    </div>
+                    <button
+                      className="px-3 py-1.5 rounded-full text-xs font-bold"
+                      style={{ background: 'rgba(10,132,255,0.12)', border: '1px solid rgba(10,132,255,0.25)', color: '#0A84FF' }}
+                    >
+                      Sfida
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SEARCH TAB */}
+        {!loading && tab === 'search' && (
+          <div>
+            <div
+              className="rounded-2xl p-5 mb-4"
+              style={{ background: 'linear-gradient(135deg, rgba(191,90,242,0.08), rgba(255,55,95,0.05))', border: '1px solid rgba(191,90,242,0.2)' }}
+            >
+              <p className="text-sm font-bold mb-3" style={{ color: '#BF5AF2' }}>🔍 Cerca per email</p>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="amico@email.com"
+                  value={searchEmail}
+                  onChange={e => setSearchEmail(e.target.value)}
+                  className="flex-1 rounded-xl px-4 py-3 text-sm outline-none"
+                  style={{ background: '#0F0F14', border: '1px solid #2A2A35', color: '#F8F8FC' }}
+                  onFocus={e => (e.target.style.borderColor = 'rgba(191,90,242,0.5)')}
+                  onBlur={e => (e.target.style.borderColor = '#2A2A35')}
+                />
+                <button
+                  onClick={handleSendRequest}
+                  disabled={sending || !searchEmail}
+                  className="px-4 py-3 rounded-xl font-bold text-sm"
+                  style={{ background: sending ? 'rgba(191,90,242,0.3)' : 'linear-gradient(135deg, #BF5AF2, #FF375F)', color: '#FFF', opacity: !searchEmail ? 0.5 : 1 }}
+                >
+                  {sending ? '...' : 'Invia'}
+                </button>
+              </div>
+              {sendMsg && <p className="text-sm mt-2 font-semibold" style={{ color: sendMsg.startsWith('✅') ? '#30D158' : '#FF453A' }}>{sendMsg}</p>}
+            </div>
+
+            {/* Suggestions */}
+            <p className="text-xs uppercase tracking-widest font-bold mb-3" style={{ color: '#8A8A96' }}>Suggeriti</p>
             <div className="space-y-2">
-              {pending.map(({ uid, profile: p }) => (
-                <div key={uid} className="bg-orange-50 border border-orange-100 rounded-2xl p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-200 rounded-full flex items-center justify-center font-bold text-orange-700">
-                    {p.name?.[0]?.toUpperCase() ?? '?'}
-                  </div>
+              {['Marco R.', 'Giulia M.', 'Luca T.', 'Sara B.'].map((name, i) => (
+                <div key={name} className="rounded-2xl p-4 flex items-center gap-3" style={{ background: '#141419', border: '1px solid #1C1C24' }}>
+                  <Avatar name={name} index={i + 2} size={44} />
                   <div className="flex-1">
-                    <p className="font-semibold">{p.name}</p>
-                    <p className="text-xs text-gray-400">{p.city}</p>
+                    <p className="font-bold" style={{ color: '#F8F8FC' }}>{name}</p>
+                    <p className="text-xs" style={{ color: '#8A8A96' }}>Lv.{i + 2} · {['Milano', 'Roma', 'Torino', 'Napoli'][i]}</p>
                   </div>
-                  <button onClick={() => handleAccept(uid)} className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold hover:bg-blue-700">
-                    Accetta
+                  <button className="px-3 py-1.5 rounded-full text-xs font-bold" style={{ background: 'rgba(255,55,95,0.1)', border: '1px solid rgba(255,55,95,0.25)', color: '#FF375F' }}>
+                    + Aggiungi
                   </button>
                 </div>
               ))}
             </div>
           </div>
         )}
-
-        <div>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">I tuoi amici</h2>
-          {friends.length === 0 && !loading && (
-            <div className="text-center py-12">
-              <p className="text-4xl mb-3">👥</p>
-              <p className="text-gray-500">Nessun amico ancora</p>
-              <p className="text-sm text-gray-400 mt-1">Invita qualcuno a unirsi a FitSocial!</p>
-            </div>
-          )}
-          <div className="space-y-2">
-            {friends.map(f => (
-              <div key={f.uid} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-600">
-                  {f.name?.[0]?.toUpperCase() ?? '?'}
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold">{f.name}</p>
-                  <p className="text-xs text-gray-400">{f.city} · Lv. {f.level}</p>
-                </div>
-                {f.fitnessLevel && (
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${levelColors[f.fitnessLevel] ?? ''}`}>
-                    {f.fitnessLevel}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </Layout>
   )

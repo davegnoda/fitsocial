@@ -9,10 +9,23 @@
   --bg-surface: #0F0F14;
   --bg-card: #141419;
   --bg-card-hover: #1A1A21;
-  --accent-fire: #FF4500;
-  --accent-lime: #B8FF00;
-  --accent-blue: #3D9EFF;
-  --accent-purple: #9B5BFF;
+
+  /* Apple-style vibrant colors */
+  --blue: #0A84FF;
+  --green: #30D158;
+  --purple: #BF5AF2;
+  --pink: #FF375F;
+  --orange: #FF9F0A;
+  --teal: #5AC8FA;
+  --red: #FF453A;
+  --lime: #B8FF00;
+
+  /* Legacy fire accent */
+  --accent-fire: #FF9F0A;
+  --accent-lime: #30D158;
+  --accent-blue: #0A84FF;
+  --accent-purple: #BF5AF2;
+
   --text-primary: #F8F8FC;
   --text-secondary: #8A8A96;
   --text-muted: #3A3A44;
@@ -94,3 +107,13 @@ body::before {
 .animate-slide-up-delay-2 { animation: slide-up 0.4s 0.2s ease both; }
 .animate-slide-up-delay-3 { animation: slide-up 0.4s 0.3s ease both; }
 .animate-slide-up-delay-4 { animation: slide-up 0.4s 0.4s ease both; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-float { animation: float 3s ease-in-out infinite; }
