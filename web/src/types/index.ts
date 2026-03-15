@@ -44,6 +44,7 @@ export interface Challenge {
   type: 'steps' | 'calories' | 'distance' | 'workouts'
   period: 'daily' | 'weekly' | 'monthly'
   fitnessLevel: 'beginner' | 'intermediate' | 'advanced' | 'all'
+  target?: number
   participants: string[]
   prize: Prize
   leaderboard: LeaderboardEntry[]

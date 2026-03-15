@@ -11,47 +11,48 @@ const LEVEL_COLOR: Record<string, string> = {
 const TYPE_ICONS: Record<string, string> = { steps: '👟', calories: '🔥', distance: '📍', workouts: '💪' }
 const PERIOD_LABEL: Record<string, string> = { daily: 'DAILY', weekly: 'WEEKLY', monthly: 'MONTHLY' }
 
+const NOW = Date.now()
 const DEMO_CHALLENGES: Challenge[] = [
   {
     id: 'demo-1', title: '10K Steps al Giorno', type: 'steps', period: 'weekly',
-    target: 70000, endDate: Date.now() + 4 * 86400000, participants: ['a', 'b', 'c', 'd', 'e'],
+    startDate: NOW - 86400000 * 3, endDate: NOW + 4 * 86400000, participants: ['a', 'b', 'c', 'd', 'e'],
     fitnessLevel: 'beginner',
-    prize: { value: '€50 Nike Gift Card', brandName: 'Nike' },
+    prize: { type: 'sponsored', value: '€50 Nike Gift Card', brandName: 'Nike' },
     leaderboard: [
-      { uid: 'a', name: 'Marco R.', value: 68400, rank: 1 },
-      { uid: 'b', name: 'Giulia M.', value: 61200, rank: 2 },
-      { uid: 'c', name: 'Luca T.', value: 54800, rank: 3 },
+      { userId: 'a', userName: 'Marco R.', score: 68400, verified: true },
+      { userId: 'b', userName: 'Giulia M.', score: 61200, verified: false },
+      { userId: 'c', userName: 'Luca T.', score: 54800, verified: false },
     ],
   },
   {
     id: 'demo-2', title: 'Ultra Distance Week', type: 'distance', period: 'weekly',
-    target: 50, endDate: Date.now() + 2 * 86400000, participants: ['a', 'b', 'c'],
+    startDate: NOW - 86400000 * 2, endDate: NOW + 2 * 86400000, participants: ['a', 'b', 'c'],
     fitnessLevel: 'advanced',
-    prize: { value: '€120 Garmin Store', brandName: 'Garmin' },
+    prize: { type: 'sponsored', value: '€120 Garmin Store', brandName: 'Garmin' },
     leaderboard: [
-      { uid: 'a', name: 'Sara B.', value: 42.1, rank: 1 },
-      { uid: 'b', name: 'Andrea F.', value: 38.6, rank: 2 },
+      { userId: 'a', userName: 'Sara B.', score: 421, verified: true },
+      { userId: 'b', userName: 'Andrea F.', score: 386, verified: false },
     ],
   },
   {
     id: 'demo-3', title: 'Calorie Burner', type: 'calories', period: 'daily',
-    target: 500, endDate: Date.now() + 86400000, participants: ['a', 'b', 'c', 'd'],
+    startDate: NOW - 3600000 * 6, endDate: NOW + 86400000, participants: ['a', 'b', 'c', 'd'],
     fitnessLevel: 'intermediate',
-    prize: { value: '€30 MyProtein', brandName: 'MyProtein' },
+    prize: { type: 'sponsored', value: '€30 MyProtein', brandName: 'MyProtein' },
     leaderboard: [
-      { uid: 'a', name: 'Paolo V.', value: 487, rank: 1 },
-      { uid: 'b', name: 'Elena C.', value: 412, rank: 2 },
-      { uid: 'c', name: 'Davide R.', value: 380, rank: 3 },
+      { userId: 'a', userName: 'Paolo V.', score: 487, verified: false },
+      { userId: 'b', userName: 'Elena C.', score: 412, verified: false },
+      { userId: 'c', userName: 'Davide R.', score: 380, verified: false },
     ],
   },
 ]
 
 const GLOBAL_LB = [
-  { uid: '1', name: 'MarcoFit', value: 142300, rank: 1 },
-  { uid: '2', name: 'GiuliaRun', value: 138900, rank: 2 },
-  { uid: '3', name: 'LucaPower', value: 121400, rank: 3 },
-  { uid: '4', name: 'SaraBike', value: 109800, rank: 4 },
-  { uid: '5', name: 'AndreaHIIT', value: 98200, rank: 5 },
+  { uid: '1', name: 'MarcoFit', value: 142300 },
+  { uid: '2', name: 'GiuliaRun', value: 138900 },
+  { uid: '3', name: 'LucaPower', value: 121400 },
+  { uid: '4', name: 'SaraBike', value: 109800 },
+  { uid: '5', name: 'AndreaHIIT', value: 98200 },
 ]
 
 export default function ChallengesPage() {
