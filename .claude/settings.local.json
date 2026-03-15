@@ -7,7 +7,12 @@
       "Bash(npx tailwindcss:*)",
       "Bash(./node_modules/.bin/tailwindcss init:*)",
       "Bash(node node_modules/.bin/tailwindcss init -p)",
-      "Bash(node node_modules/tailwindcss/lib/cli.js init -p)"
+      "Bash(node node_modules/tailwindcss/lib/cli.js init -p)",
+      "Bash(gh auth:*)",
+      "Bash(npm run:*)",
+      "mcp__plugin_firebase_firebase__firebase_get_environment",
+      "mcp__plugin_firebase_firebase__firebase_login",
+      "Bash(npx tsc:*)"
     ]
   }
 }

@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write their own profile
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // User subcollections (activities, etc.) - own data only
+    match /users/{userId}/activities/{activityId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Friends subcollection - allow read own, allow write if you are the sender
+    match /users/{userId}/friends/{friendId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // Allow creating friend requests (sender creates entry in recipient's friends)
+      allow create: if request.auth != null &&
+        (request.auth.uid == userId || request.auth.uid == friendId);
+      // Allow updating own friend entry
+      allow update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Challenges - public read, authenticated write with score restricted to own
+    match /challenges/{challengeId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+    }
+
+    // Groups
+    match /groups/{groupId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Routes
+    match /routes/{routeId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}

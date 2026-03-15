@@ -21,7 +21,9 @@ export default function ChallengesPage() {
   const [challenges, setChallenges] = useState<Challenge[]>([])
   const [loading, setLoading] = useState(true)
 
-  const load = () => getActiveChallenges().then(c => { setChallenges(c); setLoading(false) })
+  const load = () => getActiveChallenges()
+    .then(c => { setChallenges(c); setLoading(false) })
+    .catch(err => { console.error('Failed to load data:', err); setLoading(false) })
 
   useEffect(() => { load() }, [])
 

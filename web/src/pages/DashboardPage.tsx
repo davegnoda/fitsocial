@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const [activity, setActivity] = useState<Activity | null>(null)
 
   useEffect(() => {
-    if (user) getTodayActivity(user.uid).then(setActivity)
+    if (user) getTodayActivity(user.uid).then(setActivity).catch(err => console.error('Failed to load data:', err))
   }, [user])
 
   const today = new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })

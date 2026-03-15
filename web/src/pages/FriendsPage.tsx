@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { getFriends, getPendingRequests } from '../services/friendService'
+import { getFriends, getPendingRequests, acceptFriendRequest } from '../services/friendService'
 import Layout from '../components/Layout'
 import type { UserProfile } from '../types'
 
@@ -19,8 +19,19 @@ export default function FriendsPage() {
       setFriends(f)
       setPending(p)
       setLoading(false)
-    })
+    }).catch(err => { console.error('Failed to load data:', err); setLoading(false) })
   }, [user])
+
+  const handleAccept = async (friendId: string) => {
+    if (!user) return
+    await acceptFriendRequest(user.uid, friendId)
+    const [accepted, pendingReqs] = await Promise.all([
+      getFriends(user.uid),
+      getPendingRequests(user.uid),
+    ])
+    setFriends(accepted)
+    setPending(pendingReqs)
+  }
 
   const levelColors: Record<string, string> = {
     beginner: 'bg-green-100 text-green-700',
@@ -51,7 +62,7 @@ export default function FriendsPage() {
                     <p className="font-semibold">{p.name}</p>
                     <p className="text-xs text-gray-400">{p.city}</p>
                   </div>
-                  <button className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold hover:bg-blue-700">
+                  <button onClick={() => handleAccept(uid)} className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold hover:bg-blue-700">
                     Accetta
                   </button>
                 </div>

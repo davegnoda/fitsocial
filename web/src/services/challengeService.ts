@@ -1,6 +1,6 @@
 import { collection, addDoc, getDocs, doc, updateDoc, arrayUnion, query, where } from 'firebase/firestore'
 import { db } from '../firebase'
-import type { Challenge } from '../types'
+import type { Challenge, LeaderboardEntry } from '../types'
 
 export async function createChallenge(challenge: Omit<Challenge, 'id'>): Promise<string> {
   const ref = await addDoc(collection(db, 'challenges'), challenge)
@@ -17,7 +17,14 @@ export async function getActiveChallenges(): Promise<Challenge[]> {
   const now = Date.now()
   const q = query(collection(db, 'challenges'), where('endDate', '>', now))
   const snap = await getDocs(q)
-  return snap.docs.map(d => ({ id: d.id, ...d.data() } as Challenge))
+  return snap.docs.map(d => {
+    const data = d.data()
+    const scores = data.scores ?? {}
+    const leaderboard: LeaderboardEntry[] = Object.values(scores)
+      .map((s: any) => ({ userId: s.userId, userName: s.userName, score: s.score, verified: s.verified ?? false }))
+      .sort((a, b) => b.score - a.score)
+    return { id: d.id, ...data, leaderboard } as Challenge
+  })
 }
 
 export async function updateScore(challengeId: string, userId: string, userName: string, score: number) {

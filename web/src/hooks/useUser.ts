@@ -10,10 +10,14 @@ export function useUser() {
 
   useEffect(() => {
     if (!user) { setLoading(false); return }
-    getUserProfile(user.uid).then(p => {
-      setProfile(p)
-      setLoading(false)
-    })
+    getUserProfile(user.uid)
+      .then(p => {
+        setProfile(p)
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
   }, [user])
 
   return { profile, loading, refetch: () => user && getUserProfile(user.uid).then(setProfile) }

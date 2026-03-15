@@ -4,6 +4,7 @@ import { onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut, GoogleAuthProvider,
   signInWithPopup } from 'firebase/auth'
 import { auth } from '../firebase'
+import { getUserProfile, createUserProfile } from '../services/userService'
 
 interface AuthContextType {
   user: User | null
@@ -33,8 +34,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = (email: string, password: string) =>
     createUserWithEmailAndPassword(auth, email, password).then(() => {})
 
-  const loginWithGoogle = () =>
-    signInWithPopup(auth, new GoogleAuthProvider()).then(() => {})
+  const loginWithGoogle = async () => {
+    const result = await signInWithPopup(auth, new GoogleAuthProvider())
+    const user = result.user
+    const existing = await getUserProfile(user.uid)
+    if (!existing) {
+      await createUserProfile(user.uid, {
+        name: user.displayName ?? 'Utente',
+        email: user.email ?? '',
+        city: '',
+        country: '',
+      })
+    }
+  }
 
   const logout = () => signOut(auth)
 
