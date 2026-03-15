@@ -62,9 +62,12 @@ export default function ChallengesPage() {
   const [joining, setJoining] = useState<string | null>(null)
   const [tab, setTab] = useState<'sfide' | 'global'>('sfide')
 
-  const load = () => getActiveChallenges()
-    .then(c => { setChallenges(c.length > 0 ? c : DEMO_CHALLENGES); setLoading(false) })
-    .catch(() => { setChallenges(DEMO_CHALLENGES); setLoading(false) })
+  const load = () => {
+    const timeout = new Promise<Challenge[]>((_, rej) => setTimeout(() => rej(new Error('timeout')), 2500))
+    Promise.race([getActiveChallenges(), timeout])
+      .then(c => { setChallenges((c as Challenge[]).length > 0 ? (c as Challenge[]) : DEMO_CHALLENGES); setLoading(false) })
+      .catch(() => { setChallenges(DEMO_CHALLENGES); setLoading(false) })
+  }
 
   useEffect(() => { load() }, [])
 

@@ -42,8 +42,17 @@ export default function FriendsPage() {
 
   const reload = async () => {
     if (!user) return
-    const [f, p] = await Promise.all([getFriends(user.uid), getPendingRequests(user.uid)])
-    setFriends(f); setPending(p); setLoading(false)
+    const timeout = new Promise<never>((_, rej) => setTimeout(() => rej(), 2500))
+    try {
+      const [f, p] = await Promise.race([
+        Promise.all([getFriends(user.uid), getPendingRequests(user.uid)]),
+        timeout.then(() => [[], []] as [UserProfile[], { uid: string; profile: UserProfile }[]]),
+      ]) as [UserProfile[], { uid: string; profile: UserProfile }[]]
+      setFriends(f); setPending(p)
+    } catch {
+      // keep empty state
+    }
+    setLoading(false)
   }
 
   useEffect(() => { reload() }, [user])
