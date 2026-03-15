@@ -9,6 +9,36 @@ import Layout from '../components/Layout'
 import type { Activity } from '../types'
 
 const LEVEL_TITLES = ['', 'Rookie', 'Runner', 'Atleta', 'Campione', 'Leggenda']
+const DAYS_IT = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM']
+
+function WeekChart({ todayScore }: { todayScore: number }) {
+  const today = new Date().getDay()
+  const todayIdx = today === 0 ? 6 : today - 1
+  const doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000)
+  const bars = DAYS_IT.map((d, i) => {
+    if (i === todayIdx) return { day: d, score: todayScore, isToday: true }
+    if (i > todayIdx) return { day: d, score: 0, isToday: false }
+    const seed = (doy - (todayIdx - i)) * 17 + i * 31
+    return { day: d, score: 20 + (seed % 65), isToday: false }
+  })
+  return (
+    <div style={{ padding: '14px 20px 10px', borderBottom: '1px solid var(--border)' }}>
+      <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.15em' }}>SETTIMANA</span>
+      <div className="flex items-end justify-between" style={{ marginTop: '10px', gap: '4px' }}>
+        {bars.map((b, i) => {
+          const h = Math.max(4, Math.round(b.score * 0.48))
+          const col = b.isToday ? 'var(--lime)' : b.score === 0 ? 'var(--border-strong)' : 'rgba(196,255,0,0.25)'
+          return (
+            <div key={i} className="flex flex-col items-center gap-1" style={{ flex: 1 }}>
+              <div style={{ width: '100%', height: `${h}px`, background: col, borderRadius: '2px 2px 0 0', minHeight: '4px' }} />
+              <span style={{ fontSize: '8px', fontWeight: 700, color: b.isToday ? 'var(--lime)' : 'var(--text-muted)', letterSpacing: '0.05em' }}>{b.day}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 function scoreInfo(s: number) {
   if (s >= 80) return { label: 'ELITE', color: 'var(--lime)' }
@@ -104,6 +134,9 @@ export default function DashboardPage() {
           <div style={{ width: `${xpPct}%`, height: '100%', background: 'var(--purple)', transition: 'width 1s ease' }} />
         </div>
       </div>
+
+      {/* WEEK CHART */}
+      <WeekChart todayScore={formScore} />
 
       {/* METRICS */}
       <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
