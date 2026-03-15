@@ -5,86 +5,155 @@ import LeaderboardCard from '../components/LeaderboardCard'
 import Layout from '../components/Layout'
 import type { Challenge } from '../types'
 
-const levelColors: Record<string, string> = {
-  beginner: 'bg-green-100 text-green-700',
-  intermediate: 'bg-yellow-100 text-yellow-700',
-  advanced: 'bg-red-100 text-red-700',
-  all: 'bg-blue-100 text-blue-700',
+const LEVEL_STYLES: Record<string, { color: string; bg: string; border: string }> = {
+  beginner:     { color: '#B8FF00', bg: 'rgba(184,255,0,0.08)',   border: 'rgba(184,255,0,0.2)' },
+  intermediate: { color: '#FFB800', bg: 'rgba(255,184,0,0.08)',   border: 'rgba(255,184,0,0.2)' },
+  advanced:     { color: '#FF4500', bg: 'rgba(255,69,0,0.08)',    border: 'rgba(255,69,0,0.2)' },
+  all:          { color: '#3D9EFF', bg: 'rgba(61,158,255,0.08)',  border: 'rgba(61,158,255,0.2)' },
 }
 
-const typeIcons: Record<string, string> = {
-  steps: '👟', calories: '🔥', distance: '📍', workouts: '💪'
-}
+const TYPE_ICONS: Record<string, string> = { steps: '👟', calories: '🔥', distance: '📍', workouts: '💪' }
+const PERIOD_LABELS: Record<string, string> = { daily: 'DAILY', weekly: 'WEEKLY', monthly: 'MONTHLY' }
 
 export default function ChallengesPage() {
   const { user } = useAuth()
   const [challenges, setChallenges] = useState<Challenge[]>([])
   const [loading, setLoading] = useState(true)
+  const [joining, setJoining] = useState<string | null>(null)
 
   const load = () => getActiveChallenges()
     .then(c => { setChallenges(c); setLoading(false) })
-    .catch(err => { console.error('Failed to load data:', err); setLoading(false) })
+    .catch(() => setLoading(false))
 
   useEffect(() => { load() }, [])
 
   const handleJoin = async (challengeId: string) => {
     if (!user) return
+    setJoining(challengeId)
     await joinChallenge(challengeId, user.uid)
-    load()
+    await load()
+    setJoining(null)
   }
 
   const daysLeft = (endDate: number) => {
-    const days = Math.ceil((endDate - Date.now()) / (1000 * 60 * 60 * 24))
-    return days === 1 ? '1 giorno rimasto' : `${days} giorni rimasti`
+    const days = Math.ceil((endDate - Date.now()) / 86400000)
+    return days <= 1 ? '1g rimasto' : `${days}g rimasti`
   }
 
   return (
     <Layout>
-      <div className="bg-white border-b border-gray-100 px-5 pt-10 pb-5">
-        <h1 className="text-2xl font-bold">Sfide 🏆</h1>
-        <p className="text-sm text-gray-400 mt-1">Compete, vinci, scala le leghe</p>
+      {/* Header */}
+      <div
+        className="relative px-5 pt-12 pb-6 overflow-hidden"
+        style={{ background: 'linear-gradient(180deg, #0F0F14 0%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
+      >
+        <div
+          className="absolute top-0 left-0 w-48 h-48 pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 70%)' }}
+        />
+        <p className="text-xs uppercase tracking-widest font-bold" style={{ color: '#FFB800' }}>
+          Competizioni
+        </p>
+        <h1
+          className="mt-1"
+          style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '2.8rem', fontWeight: 800, lineHeight: 1 }}
+        >
+          SFIDE
+        </h1>
+        <p className="text-sm mt-1" style={{ color: '#8A8A96' }}>Compete · Vinci · Scala le leghe</p>
       </div>
 
-      <div className="px-5 py-5">
-        {loading && <p className="text-center text-gray-400 py-10">Caricamento...</p>}
-        {!loading && challenges.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-4xl mb-3">🏆</p>
-            <p className="text-gray-500">Nessuna sfida attiva al momento</p>
+      {/* Content */}
+      <div className="px-4 pt-5">
+        {loading && (
+          <div className="flex justify-center py-16">
+            <div
+              className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+              style={{ borderColor: '#FF4500', borderTopColor: 'transparent' }}
+            />
           </div>
         )}
+
+        {!loading && challenges.length === 0 && (
+          <div className="text-center py-16">
+            <div
+              className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4"
+              style={{ background: 'rgba(255,69,0,0.08)', border: '1px solid rgba(255,69,0,0.2)' }}
+            >
+              🏆
+            </div>
+            <p className="font-bold" style={{ color: '#F8F8FC' }}>Nessuna sfida attiva</p>
+            <p className="text-sm mt-1" style={{ color: '#8A8A96' }}>Torna presto per nuove sfide</p>
+          </div>
+        )}
+
         <div className="space-y-4">
           {challenges.map(c => {
             const isParticipant = user ? c.participants.includes(user.uid) : false
+            const levelStyle = LEVEL_STYLES[c.fitnessLevel] ?? LEVEL_STYLES.all
             return (
-              <div key={c.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{typeIcons[c.type]}</span>
+              <div
+                key={c.id}
+                className="rounded-2xl p-5 relative overflow-hidden"
+                style={{ background: '#141419', border: '1px solid #1C1C24' }}
+              >
+                {/* Glow */}
+                <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.04) 0%, transparent 70%)' }} />
+
+                {/* Top row */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'rgba(255,69,0,0.1)', border: '1px solid rgba(255,69,0,0.2)' }}>
+                      {TYPE_ICONS[c.type]}
+                    </div>
                     <div>
-                      <h3 className="font-bold">{c.title || `Sfida ${c.type} ${c.period}`}</h3>
-                      <p className="text-xs text-gray-400">{daysLeft(c.endDate)}</p>
+                      <h3 className="font-bold" style={{ color: '#F8F8FC' }}>
+                        {c.title || `Sfida ${c.type}`}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full uppercase" style={{ color: '#FFB800', background: 'rgba(255,184,0,0.08)', border: '1px solid rgba(255,184,0,0.2)' }}>
+                          {PERIOD_LABELS[c.period]}
+                        </span>
+                        <span className="text-xs" style={{ color: '#8A8A96' }}>{daysLeft(c.endDate)}</span>
+                      </div>
                     </div>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${levelColors[c.fitnessLevel]}`}>
+                  <span className="text-xs font-bold px-2 py-1 rounded-full capitalize" style={{ color: levelStyle.color, background: levelStyle.bg, border: `1px solid ${levelStyle.border}` }}>
                     {c.fitnessLevel}
                   </span>
                 </div>
 
-                <div className="bg-gray-50 rounded-xl px-4 py-2 mb-3 flex items-center gap-2">
-                  <span>🎁</span>
-                  <span className="text-sm font-semibold">{c.prize.value}</span>
-                  {c.prize.brandName && <span className="text-xs text-gray-400">· {c.prize.brandName}</span>}
+                {/* Prize */}
+                <div
+                  className="rounded-xl px-4 py-3 mb-4 flex items-center gap-3"
+                  style={{ background: 'rgba(255,215,0,0.05)', border: '1px solid rgba(255,215,0,0.15)' }}
+                >
+                  <span className="text-xl">🏆</span>
+                  <div>
+                    <p className="text-sm font-bold" style={{ color: '#FFD700' }}>{c.prize.value}</p>
+                    {c.prize.brandName && <p className="text-xs" style={{ color: '#8A8A96' }}>Sponsorizzato da {c.prize.brandName}</p>}
+                  </div>
                 </div>
 
-                <p className="text-xs text-gray-400 mb-3">{c.participants.length} partecipanti</p>
+                {/* Participants count */}
+                <p className="text-xs mb-3" style={{ color: '#8A8A96' }}>
+                  {c.participants.length} atleti in gara
+                </p>
 
                 {isParticipant ? (
                   <LeaderboardCard entries={c.leaderboard} currentUserId={user?.uid ?? ''} />
                 ) : (
-                  <button onClick={() => handleJoin(c.id)}
-                    className="w-full bg-blue-600 text-white rounded-xl py-2.5 font-semibold hover:bg-blue-700 transition-colors">
-                    Partecipa alla sfida
+                  <button
+                    onClick={() => handleJoin(c.id)}
+                    disabled={joining === c.id}
+                    className="w-full rounded-xl py-3 font-bold text-sm uppercase tracking-wider transition-all"
+                    style={{
+                      background: joining === c.id ? 'rgba(255,69,0,0.3)' : 'linear-gradient(135deg, #FF4500, #FF6A00)',
+                      color: '#FFFFFF',
+                      boxShadow: joining === c.id ? 'none' : '0 4px 20px rgba(255,69,0,0.3)',
+                    }}
+                  >
+                    {joining === c.id ? 'Iscrizione...' : 'Partecipa alla sfida →'}
                   </button>
                 )}
               </div>

@@ -19,44 +19,133 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password)
-      await createUserProfile(result.user.uid, { name, email, city })
+      // Fire profile creation in background — don't block navigation
+      createUserProfile(result.user.uid, { name, email, city }).catch(() => {})
       navigate('/dashboard')
     } catch {
-      setError('Errore durante la registrazione')
+      setError('Errore durante la registrazione. Email già in uso?')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">FitSocial</h1>
-          <p className="text-gray-500 mt-1">Crea il tuo account</p>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-5 relative overflow-hidden"
+      style={{ background: '#07070A' }}
+    >
+      {/* Background effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '60%', height: '60%', background: 'radial-gradient(circle, rgba(155,91,255,0.06) 0%, transparent 70%)' }} />
+        <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(255,69,0,0.05) 0%, transparent 70%)' }} />
+      </div>
+
+      <div className="w-full max-w-sm relative z-10">
+        {/* Logo */}
+        <div className="text-center mb-10">
+          <h1
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '3rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em' }}
+          >
+            <span style={{ color: '#FF4500' }}>REGI</span>
+            <span style={{ color: '#F8F8FC' }}>STRATI</span>
+          </h1>
+          <p className="text-sm mt-2 uppercase tracking-widest font-bold" style={{ color: '#8A8A96' }}>
+            Unisciti alla community
+          </p>
         </div>
-        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="text" placeholder="Nome completo" value={name}
+
+        {/* Error */}
+        {error && (
+          <div
+            className="rounded-xl px-4 py-3 mb-4 text-sm font-medium"
+            style={{ background: 'rgba(255,69,0,0.1)', border: '1px solid rgba(255,69,0,0.3)', color: '#FF6B3D' }}
+          >
+            {error}
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            type="text"
+            placeholder="Nome completo"
+            value={name}
             onChange={e => setName(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-          <input type="email" placeholder="Email" value={email}
+            className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
+            style={{
+              background: '#141419',
+              border: '1px solid #1C1C24',
+              color: '#F8F8FC',
+            }}
+            onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
+            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-          <input type="text" placeholder="Città" value={city}
+            className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
+            style={{
+              background: '#141419',
+              border: '1px solid #1C1C24',
+              color: '#F8F8FC',
+            }}
+            onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
+            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Città"
+            value={city}
             onChange={e => setCity(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-          <input type="password" placeholder="Password (min. 6 caratteri)" value={password}
+            className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
+            style={{
+              background: '#141419',
+              border: '1px solid #1C1C24',
+              color: '#F8F8FC',
+            }}
+            onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
+            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password (min. 6 caratteri)"
+            value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-          <button type="submit" disabled={loading}
-            className="w-full bg-blue-600 text-white rounded-xl py-3 font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-            {loading ? 'Registrazione...' : 'Registrati'}
+            className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
+            style={{
+              background: '#141419',
+              border: '1px solid #1C1C24',
+              color: '#F8F8FC',
+            }}
+            onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
+            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            required
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl py-3.5 text-sm font-bold uppercase tracking-wider transition-all"
+            style={{
+              background: loading ? 'rgba(255,69,0,0.3)' : 'linear-gradient(135deg, #FF4500, #FF6A00)',
+              color: '#FFFFFF',
+              boxShadow: loading ? 'none' : '0 4px 24px rgba(255,69,0,0.35)',
+            }}
+          >
+            {loading ? 'Registrazione...' : 'Crea account →'}
           </button>
         </form>
-        <p className="text-center mt-6 text-sm text-gray-500">
+
+        {/* Login link */}
+        <p className="text-center mt-8 text-sm" style={{ color: '#8A8A96' }}>
           Hai già un account?{' '}
-          <Link to="/login" className="text-blue-600 font-semibold">Accedi</Link>
+          <Link to="/login" className="font-bold hover:opacity-80" style={{ color: '#FF4500' }}>
+            Accedi
+          </Link>
         </p>
       </div>
     </div>
