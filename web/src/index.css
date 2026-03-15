@@ -5,10 +5,10 @@
 @tailwind utilities;
 
 :root {
-  --bg-base: #07070A;
-  --bg-surface: #0F0F14;
-  --bg-card: #141419;
-  --bg-card-hover: #1A1A21;
+  --bg-base: #060B17;
+  --bg-surface: #0A0F1E;
+  --bg-card: #0E1424;
+  --bg-card-hover: #121B2E;
 
   /* Apple-style vibrant colors */
   --blue: #0A84FF;
@@ -28,9 +28,9 @@
 
   --text-primary: #F8F8FC;
   --text-secondary: #8A8A96;
-  --text-muted: #3A3A44;
-  --border: #1C1C24;
-  --border-bright: #2A2A35;
+  --text-muted: #283650;
+  --border: #182035;
+  --border-bright: #1E2D45;
 }
 
 * {

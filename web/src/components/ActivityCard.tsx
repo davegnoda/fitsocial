@@ -24,8 +24,8 @@ export default function ActivityCard({ icon, label, value, unit, goal, color, de
     <div
       className="rounded-2xl p-4 relative overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, #141419 0%, #0F0F14 100%)`,
-        border: '1px solid #1C1C24',
+        background: `linear-gradient(135deg, #0E1424 0%, #0A0F1E 100%)`,
+        border: '1px solid #182035',
         animationDelay: `${delay}ms`,
         animation: 'slide-up 0.4s ease both',
       }}
@@ -67,7 +67,7 @@ export default function ActivityCard({ icon, label, value, unit, goal, color, de
       <p className="text-sm font-600 mt-0.5 relative" style={{ color: '#D0D0D8', fontWeight: 600 }}>{label}</p>
 
       {/* Progress bar */}
-      <div className="mt-3 rounded-full relative" style={{ height: '3px', background: '#1C1C24' }}>
+      <div className="mt-3 rounded-full relative" style={{ height: '3px', background: '#182035' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{

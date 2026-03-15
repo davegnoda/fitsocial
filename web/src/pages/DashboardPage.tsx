@@ -48,8 +48,8 @@ export default function DashboardPage() {
       <div
         className="relative px-5 pt-12 pb-6 overflow-hidden"
         style={{
-          background: 'linear-gradient(160deg, #0D1B3E 0%, #1A0D2E 50%, #07070A 100%)',
-          borderBottom: '1px solid #1C1C24',
+          background: 'linear-gradient(160deg, #0D1B3E 0%, #1A0D2E 50%, #060B17 100%)',
+          borderBottom: '1px solid #182035',
         }}
       >
         <div
@@ -112,7 +112,7 @@ export default function DashboardPage() {
             <span className="text-xs" style={{ color: '#8A8A96' }}>XP Progress</span>
             <span className="text-xs font-bold" style={{ color: '#B8FF00' }}>{xp} / {xpToNext} XP</span>
           </div>
-          <div className="rounded-full" style={{ height: '4px', background: '#1C1C24' }}>
+          <div className="rounded-full" style={{ height: '4px', background: '#182035' }}>
             <div
               className="h-full rounded-full transition-all duration-1000"
               style={{
@@ -149,7 +149,7 @@ export default function DashboardPage() {
               <div
                 key={i}
                 className="rounded-2xl p-4 flex items-center gap-3"
-                style={{ background: '#141419', border: '1px solid #1C1C24' }}
+                style={{ background: '#0E1424', border: '1px solid #182035' }}
               >
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"

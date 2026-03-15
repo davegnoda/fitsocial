@@ -21,7 +21,7 @@ export default function LeaderboardCard({ entries, currentUserId }: Props) {
     )
   }
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #1C1C24' }}>
+    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #182035' }}>
       {sorted.map((entry, i) => {
         const isMe = entry.userId === currentUserId
         const medal = MEDAL_COLORS[i]
@@ -30,7 +30,7 @@ export default function LeaderboardCard({ entries, currentUserId }: Props) {
             key={entry.userId}
             className="flex items-center px-3 py-3 gap-3 transition-colors"
             style={{
-              background: isMe ? 'rgba(255,69,0,0.06)' : i % 2 === 0 ? '#141419' : '#111116',
+              background: isMe ? 'rgba(255,69,0,0.06)' : i % 2 === 0 ? '#0E1424' : '#111116',
               borderLeft: isMe ? '2px solid #FF4500' : '2px solid transparent',
             }}
           >
@@ -39,7 +39,7 @@ export default function LeaderboardCard({ entries, currentUserId }: Props) {
               {medal ? (
                 <span className="text-base">{medal.icon}</span>
               ) : (
-                <span className="text-sm font-bold" style={{ color: '#3A3A44' }}>#{i + 1}</span>
+                <span className="text-sm font-bold" style={{ color: '#283650' }}>#{i + 1}</span>
               )}
             </div>
 
@@ -48,7 +48,7 @@ export default function LeaderboardCard({ entries, currentUserId }: Props) {
               className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
               style={{
                 background: medal ? medal.bg : isMe ? 'rgba(255,69,0,0.12)' : 'rgba(138,138,150,0.08)',
-                border: `1px solid ${medal ? medal.border : isMe ? 'rgba(255,69,0,0.25)' : '#1C1C24'}`,
+                border: `1px solid ${medal ? medal.border : isMe ? 'rgba(255,69,0,0.25)' : '#182035'}`,
                 color: medal ? medal.color : isMe ? '#FF4500' : '#8A8A96',
               }}
             >

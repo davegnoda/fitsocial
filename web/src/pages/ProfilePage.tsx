@@ -37,7 +37,7 @@ export default function ProfilePage() {
       {/* Profile Header */}
       <div
         className="relative px-5 pt-12 pb-8 overflow-hidden"
-        style={{ background: 'linear-gradient(160deg, #1A0D2E 0%, #0D1A2E 60%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
+        style={{ background: 'linear-gradient(160deg, #1A0D2E 0%, #0D1A2E 60%, #060B17 100%)', borderBottom: '1px solid #182035' }}
       >
         <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(155,91,255,0.08) 0%, transparent 70%)' }} />
 
@@ -92,7 +92,7 @@ export default function ProfilePage() {
             <div
               key={s.label}
               className="rounded-xl p-3 text-center"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #1C1C24' }}
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #182035' }}
             >
               <p
                 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '1.6rem', fontWeight: 800, color: s.color, lineHeight: 1 }}
@@ -100,7 +100,7 @@ export default function ProfilePage() {
                 {s.value}
               </p>
               <p className="text-xs mt-1" style={{ color: '#8A8A96' }}>{s.sub}</p>
-              <p className="text-xs font-bold mt-0.5 uppercase tracking-wider" style={{ color: '#3A3A44' }}>{s.label}</p>
+              <p className="text-xs font-bold mt-0.5 uppercase tracking-wider" style={{ color: '#283650' }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -111,7 +111,7 @@ export default function ProfilePage() {
             <span className="text-xs" style={{ color: '#8A8A96' }}>Prossimo livello</span>
             <span className="text-xs font-bold" style={{ color: '#B8FF00' }}>{Math.round(xpPercent)}%</span>
           </div>
-          <div className="rounded-full" style={{ height: '4px', background: '#1C1C24' }}>
+          <div className="rounded-full" style={{ height: '4px', background: '#182035' }}>
             <div
               className="h-full rounded-full"
               style={{ width: `${xpPercent}%`, background: 'linear-gradient(90deg, #0A84FF, #BF5AF2)', boxShadow: '0 0 10px rgba(10,132,255,0.3)' }}
@@ -127,7 +127,7 @@ export default function ProfilePage() {
             key={i}
             onClick={item.onClick}
             className="w-full rounded-2xl p-4 flex items-center gap-4 text-left transition-all hover:opacity-80"
-            style={{ background: '#141419', border: '1px solid #1C1C24' }}
+            style={{ background: '#0E1424', border: '1px solid #182035' }}
           >
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
@@ -139,7 +139,7 @@ export default function ProfilePage() {
               <p className="text-sm font-bold" style={{ color: '#F8F8FC' }}>{item.label}</p>
               <p className="text-xs mt-0.5" style={{ color: '#8A8A96' }}>{item.sub}</p>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#3A3A44">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#283650">
               <path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/>
             </svg>
           </button>

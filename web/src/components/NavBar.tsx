@@ -36,7 +36,7 @@ export default function NavBar() {
       style={{
         background: 'rgba(7,7,10,0.95)',
         backdropFilter: 'blur(20px)',
-        borderTop: '1px solid #1C1C24',
+        borderTop: '1px solid #182035',
         paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',
         paddingTop: '10px',
       }}

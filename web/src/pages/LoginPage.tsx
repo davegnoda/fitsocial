@@ -37,7 +37,7 @@ export default function LoginPage() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-5 relative overflow-hidden"
-      style={{ background: '#07070A' }}
+      style={{ background: '#060B17' }}
     >
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
@@ -78,12 +78,12 @@ export default function LoginPage() {
             onChange={e => setEmail(e.target.value)}
             className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
             style={{
-              background: '#141419',
-              border: '1px solid #1C1C24',
+              background: '#0E1424',
+              border: '1px solid #182035',
               color: '#F8F8FC',
             }}
             onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
-            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            onBlur={e => e.target.style.borderColor = '#182035'}
             required
           />
           <input
@@ -93,12 +93,12 @@ export default function LoginPage() {
             onChange={e => setPassword(e.target.value)}
             className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
             style={{
-              background: '#141419',
-              border: '1px solid #1C1C24',
+              background: '#0E1424',
+              border: '1px solid #182035',
               color: '#F8F8FC',
             }}
             onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
-            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            onBlur={e => e.target.style.borderColor = '#182035'}
             required
           />
           <button
@@ -117,16 +117,16 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-4">
-          <div className="flex-1 h-px" style={{ background: '#1C1C24' }} />
-          <span className="text-xs uppercase tracking-widest" style={{ color: '#3A3A44' }}>oppure</span>
-          <div className="flex-1 h-px" style={{ background: '#1C1C24' }} />
+          <div className="flex-1 h-px" style={{ background: '#182035' }} />
+          <span className="text-xs uppercase tracking-widest" style={{ color: '#283650' }}>oppure</span>
+          <div className="flex-1 h-px" style={{ background: '#182035' }} />
         </div>
 
         {/* Google */}
         <button
           onClick={handleGoogle}
           className="w-full rounded-xl py-3.5 text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:opacity-80"
-          style={{ background: '#141419', border: '1px solid #2A2A35', color: '#F8F8FC' }}
+          style={{ background: '#0E1424', border: '1px solid #1E2D45', color: '#F8F8FC' }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

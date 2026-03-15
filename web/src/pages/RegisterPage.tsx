@@ -32,7 +32,7 @@ export default function RegisterPage() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-5 relative overflow-hidden"
-      style={{ background: '#07070A' }}
+      style={{ background: '#060B17' }}
     >
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
@@ -73,12 +73,12 @@ export default function RegisterPage() {
             onChange={e => setName(e.target.value)}
             className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
             style={{
-              background: '#141419',
-              border: '1px solid #1C1C24',
+              background: '#0E1424',
+              border: '1px solid #182035',
               color: '#F8F8FC',
             }}
             onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
-            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            onBlur={e => e.target.style.borderColor = '#182035'}
             required
           />
           <input
@@ -88,12 +88,12 @@ export default function RegisterPage() {
             onChange={e => setEmail(e.target.value)}
             className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
             style={{
-              background: '#141419',
-              border: '1px solid #1C1C24',
+              background: '#0E1424',
+              border: '1px solid #182035',
               color: '#F8F8FC',
             }}
             onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
-            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            onBlur={e => e.target.style.borderColor = '#182035'}
             required
           />
           <input
@@ -103,12 +103,12 @@ export default function RegisterPage() {
             onChange={e => setCity(e.target.value)}
             className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
             style={{
-              background: '#141419',
-              border: '1px solid #1C1C24',
+              background: '#0E1424',
+              border: '1px solid #182035',
               color: '#F8F8FC',
             }}
             onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
-            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            onBlur={e => e.target.style.borderColor = '#182035'}
             required
           />
           <input
@@ -118,12 +118,12 @@ export default function RegisterPage() {
             onChange={e => setPassword(e.target.value)}
             className="w-full rounded-xl px-4 py-3.5 text-sm outline-none transition-all"
             style={{
-              background: '#141419',
-              border: '1px solid #1C1C24',
+              background: '#0E1424',
+              border: '1px solid #182035',
               color: '#F8F8FC',
             }}
             onFocus={e => e.target.style.borderColor = 'rgba(255,69,0,0.5)'}
-            onBlur={e => e.target.style.borderColor = '#1C1C24'}
+            onBlur={e => e.target.style.borderColor = '#182035'}
             required
           />
           <button

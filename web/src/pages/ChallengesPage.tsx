@@ -45,7 +45,7 @@ export default function ChallengesPage() {
       {/* Header */}
       <div
         className="relative px-5 pt-12 pb-6 overflow-hidden"
-        style={{ background: 'linear-gradient(180deg, #0F0F14 0%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
+        style={{ background: 'linear-gradient(180deg, #0A0F1E 0%, #060B17 100%)', borderBottom: '1px solid #182035' }}
       >
         <div
           className="absolute top-0 left-0 w-48 h-48 pointer-events-none"
@@ -95,7 +95,7 @@ export default function ChallengesPage() {
               <div
                 key={c.id}
                 className="rounded-2xl p-5 relative overflow-hidden"
-                style={{ background: '#141419', border: '1px solid #1C1C24' }}
+                style={{ background: '#0E1424', border: '1px solid #182035' }}
               >
                 {/* Glow */}
                 <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.04) 0%, transparent 70%)' }} />

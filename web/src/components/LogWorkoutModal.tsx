@@ -56,10 +56,10 @@ export default function LogWorkoutModal({ onSave, onClose, existing }: Props) {
     >
       <div
         className="w-full rounded-t-3xl px-5 pt-5 pb-8"
-        style={{ background: '#0F0F14', border: '1px solid #1C1C24', borderBottom: 'none', maxHeight: '90vh', overflowY: 'auto' }}
+        style={{ background: '#0A0F1E', border: '1px solid #182035', borderBottom: 'none', maxHeight: '90vh', overflowY: 'auto' }}
       >
         {/* Handle */}
-        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: '#2A2A35' }} />
+        <div className="w-10 h-1 rounded-full mx-auto mb-5" style={{ background: '#1E2D45' }} />
 
         {/* Title */}
         <div className="flex items-center justify-between mb-5">
@@ -69,7 +69,7 @@ export default function LogWorkoutModal({ onSave, onClose, existing }: Props) {
               ALLENAMENTO
             </h2>
           </div>
-          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: '#1C1C24', color: '#8A8A96', fontSize: '1.2rem' }}>
+          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: '#182035', color: '#8A8A96', fontSize: '1.2rem' }}>
             ×
           </button>
         </div>
@@ -83,8 +83,8 @@ export default function LogWorkoutModal({ onSave, onClose, existing }: Props) {
               onClick={() => setWorkoutType(t.value)}
               className="rounded-xl py-3 flex flex-col items-center gap-1 transition-all"
               style={{
-                background: workoutType === t.value ? 'rgba(48,209,88,0.12)' : '#141419',
-                border: workoutType === t.value ? '1px solid rgba(48,209,88,0.4)' : '1px solid #1C1C24',
+                background: workoutType === t.value ? 'rgba(48,209,88,0.12)' : '#0E1424',
+                border: workoutType === t.value ? '1px solid rgba(48,209,88,0.4)' : '1px solid #182035',
               }}
             >
               <span style={{ fontSize: '1.5rem' }}>{t.icon}</span>
@@ -105,9 +105,9 @@ export default function LogWorkoutModal({ onSave, onClose, existing }: Props) {
             value={duration}
             onChange={e => setDuration(e.target.value)}
             className="w-full rounded-xl px-4 py-3.5 text-sm outline-none"
-            style={{ background: '#141419', border: '1px solid #1C1C24', color: '#F8F8FC' }}
+            style={{ background: '#0E1424', border: '1px solid #182035', color: '#F8F8FC' }}
             onFocus={e => (e.target.style.borderColor = 'rgba(48,209,88,0.5)')}
-            onBlur={e => (e.target.style.borderColor = '#1C1C24')}
+            onBlur={e => (e.target.style.borderColor = '#182035')}
           />
         </div>
 
@@ -129,9 +129,9 @@ export default function LogWorkoutModal({ onSave, onClose, existing }: Props) {
                 value={f.value}
                 onChange={e => f.set(e.target.value)}
                 className="w-full rounded-xl px-3 py-3 text-sm outline-none text-center font-bold"
-                style={{ background: '#141419', border: '1px solid #1C1C24', color: '#F8F8FC' }}
+                style={{ background: '#0E1424', border: '1px solid #182035', color: '#F8F8FC' }}
                 onFocus={e => (e.target.style.borderColor = f.color + '80')}
-                onBlur={e => (e.target.style.borderColor = '#1C1C24')}
+                onBlur={e => (e.target.style.borderColor = '#182035')}
               />
             </div>
           ))}

@@ -14,7 +14,10 @@
       "mcp__plugin_firebase_firebase__firebase_login",
       "Bash(npx tsc:*)",
       "mcp__plugin_firebase_firebase__firebase_update_environment",
-      "Bash(python3 -:*)"
+      "Bash(python3 -:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(cmd //c \"where npm\")",
+      "Bash(powershell -Command \"Get-Command npm | Select-Object -ExpandProperty Source\")"
     ]
   }
 }

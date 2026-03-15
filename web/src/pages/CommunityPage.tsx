@@ -38,7 +38,7 @@ export default function CommunityPage() {
       {/* Header */}
       <div
         className="relative px-5 pt-12 pb-0 overflow-hidden"
-        style={{ background: 'linear-gradient(160deg, #051A2E 0%, #0A1520 60%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
+        style={{ background: 'linear-gradient(160deg, #051A2E 0%, #0A1520 60%, #060B17 100%)', borderBottom: '1px solid #182035' }}
       >
         <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(90,200,250,0.08) 0%, transparent 70%)' }} />
 
@@ -80,7 +80,7 @@ export default function CommunityPage() {
               onClick={() => setTab(t.key as 'radar' | 'events' | 'routes')}
               className="px-4 py-2.5 text-sm font-bold rounded-t-xl transition-all"
               style={{
-                background: tab === t.key ? '#141419' : 'transparent',
+                background: tab === t.key ? '#0E1424' : 'transparent',
                 color: tab === t.key ? '#F8F8FC' : '#8A8A96',
                 borderBottom: tab === t.key ? '2px solid #5AC8FA' : '2px solid transparent',
               }}
@@ -98,7 +98,7 @@ export default function CommunityPage() {
             {/* Map placeholder */}
             <div
               className="rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden"
-              style={{ height: '200px', background: 'linear-gradient(135deg, #051A2E, #071520)', border: '1px solid #1C1C24' }}
+              style={{ height: '200px', background: 'linear-gradient(135deg, #051A2E, #071520)', border: '1px solid #182035' }}
             >
               {/* Radar rings */}
               {[1, 2, 3].map(r => (
@@ -138,7 +138,7 @@ export default function CommunityPage() {
                 <div
                   key={a.name}
                   className="rounded-2xl p-4 flex items-center gap-3"
-                  style={{ background: '#141419', border: '1px solid #1C1C24' }}
+                  style={{ background: '#0E1424', border: '1px solid #182035' }}
                 >
                   <div
                     style={{ width: 44, height: 44, borderRadius: 12, background: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Barlow Condensed'", fontWeight: 700, color: '#FFF', flexShrink: 0 }}
@@ -177,7 +177,7 @@ export default function CommunityPage() {
                 <div
                   key={e.title}
                   className="rounded-2xl p-4 relative overflow-hidden"
-                  style={{ background: '#141419', border: '1px solid #1C1C24' }}
+                  style={{ background: '#0E1424', border: '1px solid #182035' }}
                 >
                   <div className="absolute top-0 right-0 w-24 h-24 pointer-events-none" style={{ background: `radial-gradient(circle, ${e.color}15 0%, transparent 70%)` }} />
                   <div className="flex items-start gap-3">
@@ -208,7 +208,7 @@ export default function CommunityPage() {
                 <div
                   key={r.name}
                   className="rounded-2xl p-4 relative overflow-hidden"
-                  style={{ background: '#141419', border: '1px solid #1C1C24' }}
+                  style={{ background: '#0E1424', border: '1px solid #182035' }}
                 >
                   <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none" style={{ background: `radial-gradient(circle, ${r.color}10 0%, transparent 70%)` }} />
                   <div className="flex items-center gap-3">

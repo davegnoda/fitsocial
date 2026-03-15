@@ -93,7 +93,7 @@ export default function FriendsPage() {
       {/* Header */}
       <div
         className="relative px-5 pt-12 pb-0 overflow-hidden"
-        style={{ background: 'linear-gradient(160deg, #1A0A2E 0%, #0A1A1A 60%, #07070A 100%)', borderBottom: '1px solid #1C1C24' }}
+        style={{ background: 'linear-gradient(160deg, #1A0A2E 0%, #0A1A1A 60%, #060B17 100%)', borderBottom: '1px solid #182035' }}
       >
         <div className="absolute top-0 right-0 w-48 h-48 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(255,55,95,0.1) 0%, transparent 70%)' }} />
 
@@ -117,7 +117,7 @@ export default function FriendsPage() {
               onClick={() => setTab(t.key as 'feed' | 'friends' | 'search')}
               className="px-4 py-2.5 text-sm font-bold rounded-t-xl transition-all"
               style={{
-                background: tab === t.key ? '#141419' : 'transparent',
+                background: tab === t.key ? '#0E1424' : 'transparent',
                 color: tab === t.key ? '#F8F8FC' : '#8A8A96',
                 borderBottom: tab === t.key ? '2px solid #FF375F' : '2px solid transparent',
               }}
@@ -182,14 +182,14 @@ export default function FriendsPage() {
               friends.map((f, fi) => {
                 const activity = MOCK_FEED[fi % MOCK_FEED.length]
                 return (
-                  <div key={f.uid} className="rounded-2xl p-4" style={{ background: '#141419', border: '1px solid #1C1C24' }}>
+                  <div key={f.uid} className="rounded-2xl p-4" style={{ background: '#0E1424', border: '1px solid #182035' }}>
                     <div className="flex items-center gap-3 mb-3">
                       <Avatar name={f.name ?? '?'} index={fi} size={44} />
                       <div className="flex-1">
                         <p className="font-bold" style={{ color: '#F8F8FC' }}>{f.name}</p>
                         <p className="text-xs" style={{ color: '#8A8A96' }}>{f.city} · Lv.{f.level}</p>
                       </div>
-                      <span className="text-xs" style={{ color: '#3A3A44' }}>{activity.time}</span>
+                      <span className="text-xs" style={{ color: '#283650' }}>{activity.time}</span>
                     </div>
                     <div
                       className="rounded-xl px-4 py-3 flex items-center gap-3"
@@ -201,7 +201,7 @@ export default function FriendsPage() {
                         <span style={{ color: activity.color, fontWeight: 700 }}>{activity.value}</span>
                       </p>
                     </div>
-                    <div className="flex gap-4 mt-3 pt-3" style={{ borderTop: '1px solid #1C1C24' }}>
+                    <div className="flex gap-4 mt-3 pt-3" style={{ borderTop: '1px solid #182035' }}>
                       {['👏 Bravo!', '🔥 Top!', '💪 Forza!'].map(r => (
                         <button key={r} className="text-xs font-semibold transition-opacity hover:opacity-60" style={{ color: '#8A8A96' }}>{r}</button>
                       ))}
@@ -225,7 +225,7 @@ export default function FriendsPage() {
             ) : (
               <div className="space-y-2">
                 {friends.map((f, i) => (
-                  <div key={f.uid} className="rounded-2xl p-4 flex items-center gap-3" style={{ background: '#141419', border: '1px solid #1C1C24' }}>
+                  <div key={f.uid} className="rounded-2xl p-4 flex items-center gap-3" style={{ background: '#0E1424', border: '1px solid #182035' }}>
                     <Avatar name={f.name ?? '?'} index={i} size={48} />
                     <div className="flex-1">
                       <p className="font-bold" style={{ color: '#F8F8FC' }}>{f.name}</p>
@@ -261,9 +261,9 @@ export default function FriendsPage() {
                   value={searchEmail}
                   onChange={e => setSearchEmail(e.target.value)}
                   className="flex-1 rounded-xl px-4 py-3 text-sm outline-none"
-                  style={{ background: '#0F0F14', border: '1px solid #2A2A35', color: '#F8F8FC' }}
+                  style={{ background: '#0A0F1E', border: '1px solid #1E2D45', color: '#F8F8FC' }}
                   onFocus={e => (e.target.style.borderColor = 'rgba(191,90,242,0.5)')}
-                  onBlur={e => (e.target.style.borderColor = '#2A2A35')}
+                  onBlur={e => (e.target.style.borderColor = '#1E2D45')}
                 />
                 <button
                   onClick={handleSendRequest}
@@ -281,7 +281,7 @@ export default function FriendsPage() {
             <p className="text-xs uppercase tracking-widest font-bold mb-3" style={{ color: '#8A8A96' }}>Suggeriti</p>
             <div className="space-y-2">
               {['Marco R.', 'Giulia M.', 'Luca T.', 'Sara B.'].map((name, i) => (
-                <div key={name} className="rounded-2xl p-4 flex items-center gap-3" style={{ background: '#141419', border: '1px solid #1C1C24' }}>
+                <div key={name} className="rounded-2xl p-4 flex items-center gap-3" style={{ background: '#0E1424', border: '1px solid #182035' }}>
                   <Avatar name={name} index={i + 2} size={44} />
                   <div className="flex-1">
                     <p className="font-bold" style={{ color: '#F8F8FC' }}>{name}</p>
