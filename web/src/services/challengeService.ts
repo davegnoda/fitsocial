@@ -27,8 +27,14 @@ export async function getActiveChallenges(): Promise<Challenge[]> {
   })
 }
 
-export async function updateScore(challengeId: string, userId: string, userName: string, score: number) {
-  await updateDoc(doc(db, 'challenges', challengeId), {
-    [`scores.${userId}`]: { userId, userName, score, verified: false }
-  })
+export async function getWonChallenges(userId: string): Promise<number> {
+  const q = query(collection(db, 'challenges'), where('endDate', '<', Date.now()))
+  const snap = await getDocs(q)
+  return snap.docs.filter(d => {
+    const scores = d.data().scores ?? {}
+    const entries = Object.values(scores) as { userId: string; score: number }[]
+    if (entries.length === 0) return false
+    entries.sort((a, b) => b.score - a.score)
+    return entries[0].userId === userId
+  }).length
 }

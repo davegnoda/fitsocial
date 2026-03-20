@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, limit } from 'firebase/firestore'
+import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs, limit, orderBy } from 'firebase/firestore'
 import { db } from '../firebase'
 import type { UserProfile } from '../types'
 
@@ -32,20 +32,31 @@ export async function searchUserByEmail(email: string): Promise<UserProfile | nu
   return snap.docs[0].data() as UserProfile
 }
 
-export async function updateUserXP(uid: string, gainedXp: number) {
-  const profile = await getUserProfile(uid)
-  if (!profile) return
-  const newXp = (profile.xp ?? 0) + gainedXp
-  const newLevel = Math.floor(newXp / 1000) + 1
-  const today = new Date().toISOString().split('T')[0]
-  const lastActive = (profile as UserProfile & { lastActive?: string }).lastActive
-  const isNewDay = lastActive !== today
-  const wasYesterday = lastActive === new Date(Date.now() - 86400000).toISOString().split('T')[0]
-  const newStreak = isNewDay ? (wasYesterday ? (profile.streak ?? 0) + 1 : 1) : profile.streak ?? 0
-  await updateDoc(doc(db, 'users', uid), {
-    xp: newXp,
-    level: newLevel,
-    streak: newStreak,
-    lastActive: today,
-  })
+export async function getTopUsers(n: number = 10): Promise<UserProfile[]> {
+  const q = query(collection(db, 'users'), orderBy('xp', 'desc'), limit(n))
+  const snap = await getDocs(q)
+  return snap.docs.map(d => d.data() as UserProfile)
+}
+
+export async function getTopUsersByRecentActivity(days: number, maxUsers: number = 10): Promise<(UserProfile & { recentSteps: number })[]> {
+  const usersSnap = await getDocs(query(collection(db, 'users'), orderBy('xp', 'desc'), limit(50)))
+  const users = usersSnap.docs.map(d => d.data() as UserProfile)
+
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - days)
+  const cutoffDate = cutoff.toISOString().split('T')[0]
+
+  const withSteps = await Promise.all(users.map(async u => {
+    try {
+      const actSnap = await getDocs(collection(db, 'users', u.uid, 'activities'))
+      const recentSteps = actSnap.docs
+        .filter(d => { const data = d.data() as { date?: string }; return (data.date ?? '') >= cutoffDate })
+        .reduce((sum, d) => { const data = d.data() as { steps?: number }; return sum + (data.steps ?? 0) }, 0)
+      return { ...u, recentSteps }
+    } catch {
+      return { ...u, recentSteps: 0 }
+    }
+  }))
+
+  return withSteps.sort((a, b) => b.recentSteps - a.recentSteps).slice(0, maxUsers)
 }

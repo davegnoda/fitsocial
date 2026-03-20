@@ -1,44 +1,134 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can read/write their own profile
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    function noServerFields() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['xp', 'level', 'streak', 'lastActive']);
+    }
+
+    // Users
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isAuth();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && noServerFields();
     }
 
-    // User subcollections (activities, etc.) - own data only
+    // Activities
     match /users/{userId}/activities/{activityId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isAuth();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
     }
 
-    // Friends subcollection - allow read own, allow write if you are the sender
+    // Notifications
+    match /users/{userId}/notifications/{notifId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Achievements — server-only write (Admin SDK bypasses rules)
+    match /users/{userId}/achievements/{docId} {
+      allow read: if isOwner(userId);
+      allow write: if false;
+    }
+
+    // PRs — server-only write
+    match /users/{userId}/meta/{docId} {
+      allow read: if isOwner(userId);
+      allow write: if false;
+    }
+
+    // Friends
     match /users/{userId}/friends/{friendId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      // Allow creating friend requests (sender creates entry in recipient's friends)
-      allow create: if request.auth != null &&
-        (request.auth.uid == userId || request.auth.uid == friendId);
-      // Allow updating own friend entry
-      allow update: if request.auth != null && request.auth.uid == userId;
+      allow read: if isOwner(userId);
+      allow create: if isAuth() && (request.auth.uid == userId || request.auth.uid == friendId);
+      allow update: if isOwner(userId);
     }
 
-    // Challenges - public read, authenticated write with score restricted to own
+    // Body tracking — own only
+    match /users/{userId}/weights/{docId} {
+      allow read, write: if isOwner(userId);
+    }
+    match /users/{userId}/injuries/{docId} {
+      allow read, write: if isOwner(userId);
+    }
+    match /users/{userId}/measurements/{docId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Challenges — scores are server-only, users can only join (add to participants)
     match /challenges/{challengeId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participants']) &&
+        request.resource.data.participants.hasAll(resource.data.participants);
     }
 
-    // Groups
+    // Duels — server-only updates
+    match /duels/{duelId} {
+      allow read: if isAuth() &&
+        (resource.data.challenger == request.auth.uid || resource.data.opponent == request.auth.uid);
+      allow create: if isAuth();
+      allow update: if false;
+    }
+
+    // Streak battles — server-only updates
+    match /streak-battles/{battleId} {
+      allow read: if isAuth() && request.auth.uid in resource.data.participants;
+      allow create: if isAuth();
+      allow update: if false;
+    }
+
+    // Leagues — server-only
+    match /leagues/{weekId} {
+      allow read: if isAuth();
+      allow write: if false;
+    }
+
+    // Groups — only creator can update
     match /groups/{groupId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth() && request.auth.uid == resource.data.createdBy;
+    }
+
+    // Events — only creator can update
+    match /events/{eventId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth() && request.auth.uid == resource.data.createdBy;
+    }
+
+    // Feed — server-only write
+    match /feed/{feedId} {
+      allow read: if isAuth();
+      allow write: if false;
     }
 
     // Routes
     match /routes/{routeId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isAuth() && request.auth.uid == resource.data.createdBy;
+    }
+
+    // Payments & Payouts — server-only write, read own
+    match /payments/{paymentId} {
+      allow read: if isAuth() && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+    match /payouts/{payoutId} {
+      allow read: if isAuth() && resource.data.userId == request.auth.uid;
+      allow write: if false;
     }
   }
 }

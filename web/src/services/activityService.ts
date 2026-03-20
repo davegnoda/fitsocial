@@ -12,6 +12,11 @@ export async function saveActivity(userId: string, activity: Activity) {
   await setDoc(doc(db, 'users', userId, 'activities', activity.date), activity)
 }
 
+export async function getTotalActivities(userId: string): Promise<number> {
+  const snap = await getDocs(collection(db, 'users', userId, 'activities'))
+  return snap.size
+}
+
 export async function getWeeklyActivities(userId: string): Promise<Activity[]> {
   const q = query(
     collection(db, 'users', userId, 'activities'),
