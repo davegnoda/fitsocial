@@ -1,35 +1,58 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg:           #0B0B0B;
-  --bg-card:      #161616;
-  --bg-surface:   #121212;
-  --bg-input:     #1E1E1E;
+  --bg:           #F8FAFC;
+  --bg-card:      #FFFFFF;
+  --bg-surface:   #F1F5F9;
+  --bg-input:     #F8FAFC;
 
-  --lime:         #C4FF00;
-  --lime-dim:     rgba(196,255,0,0.08);
-  --orange:       #FF4500;
-  --blue:         #3D9EFF;
-  --pink:         #FF375F;
-  --amber:        #FFB800;
-  --teal:         #00D4B1;
-  --purple:       #A855F7;
-  --green:        #22C55E;
+  --indigo:       #4F46E5;
+  --indigo-light: #EEF2FF;
+  --purple:       #7C3AED;
+  --gradient:     linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --gradient-hero:linear-gradient(135deg, #3730A3 0%, #6D28D9 60%, #7C3AED 100%);
 
-  --text:         #EFEFEF;
-  --text-sub:     #666;
-  --text-muted:   #2E2E2E;
-  --border:       #1E1E1E;
-  --border-strong:#2A2A2A;
+  --lime:         #65A30D;
+  --green:        #16A34A;
+  --green-bg:     #F0FDF4;
+  --orange:       #EA580C;
+  --amber:        #D97706;
+  --teal:         #0D9488;
+  --pink:         #DB2777;
+  --blue:         #2563EB;
+  --blue-bg:      #EFF6FF;
+
+  --text:         #0F172A;
+  --text-sub:     #64748B;
+  --text-muted:   #CBD5E1;
+  --border:       #E2E8F0;
+  --border-strong:#CBD5E1;
+
+  --shadow-sm:    0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-card:  0 4px 16px rgba(15,23,42,0.08), 0 1px 4px rgba(15,23,42,0.04);
+  --shadow-lg:    0 10px 40px rgba(15,23,42,0.12), 0 4px 16px rgba(15,23,42,0.06);
+
+  --radius:       14px;
+  --radius-lg:    20px;
+  --radius-xl:    28px;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
+}
+
+button {
+  transition: transform 0.1s ease, opacity 0.1s ease;
+  touch-action: manipulation;
+}
+button:active:not(:disabled) {
+  transform: scale(0.95);
+  opacity: 0.82;
 }
 
 body {
@@ -41,22 +64,21 @@ body {
 }
 
 .font-display {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Sora', sans-serif;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 2px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border-strong); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
 
-/* Count-up animation */
+/* Animations */
 @keyframes count-up {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-count { animation: count-up 0.5s ease both; }
 
-/* Slide up */
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -67,29 +89,39 @@ body {
 .animate-up-3 { animation: slide-up 0.4s 0.24s ease both; }
 .animate-up-4 { animation: slide-up 0.4s 0.32s ease both; }
 
-/* Fade in */
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 .animate-fade { animation: fade-in 0.6s ease both; }
 
-/* Float */
 @keyframes float {
   0%,100% { transform: translateY(0); }
   50%      { transform: translateY(-5px); }
 }
 .animate-float { animation: float 3s ease-in-out infinite; }
 
-/* Progress fill */
 @keyframes fill-bar {
   from { width: 0%; }
 }
 .animate-fill { animation: fill-bar 1.2s ease both; }
 
-/* Pulse lime */
-@keyframes pulse-lime {
-  0%,100% { box-shadow: 0 0 0 0 rgba(196,255,0,0.3); }
-  50%     { box-shadow: 0 0 0 8px rgba(196,255,0,0); }
+@keyframes pulse-indigo {
+  0%,100% { box-shadow: 0 0 0 0 rgba(79,70,229,0.3); }
+  50%     { box-shadow: 0 0 0 8px rgba(79,70,229,0); }
 }
-.pulse-lime { animation: pulse-lime 2s ease-in-out infinite; }
+.pulse-indigo { animation: pulse-indigo 2s ease-in-out infinite; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { loginWithGoogle } = useAuth()
+  const { login, loginWithGoogle } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -16,7 +14,7 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      await login(email, password)
       navigate('/dashboard')
     } catch {
       setError('Email o password non validi')
@@ -37,65 +35,134 @@ export default function LoginPage() {
     }
   }
 
-  const inputStyle = {
-    background: 'var(--bg-input)', border: '1px solid var(--border)',
-    color: 'var(--text)', padding: '14px 16px', fontSize: '14px',
-    borderRadius: '4px', outline: 'none', width: '100%',
-    fontFamily: 'DM Sans, sans-serif',
+  const inputStyle: React.CSSProperties = {
+    background: 'var(--bg-card)',
+    border: '1.5px solid var(--border)',
+    color: 'var(--text)',
+    padding: '14px 16px',
+    fontSize: '14px',
+    borderRadius: '12px',
+    outline: 'none',
+    width: '100%',
+    fontFamily: "'DM Sans', sans-serif",
+    transition: 'border-color 0.2s',
   }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
-      {/* Brand */}
-      <div style={{ padding: '48px 24px 0' }}>
-        <div className="flex items-end gap-1">
-          <span className="font-display" style={{ fontSize: '3.8rem', color: 'var(--lime)', lineHeight: 1 }}>FIT</span>
-          <span className="font-display" style={{ fontSize: '3.8rem', color: 'var(--text)', lineHeight: 1 }}>SOCIAL</span>
+      {/* HERO */}
+      <div style={{
+        background: 'var(--gradient-hero)',
+        padding: '72px 28px 40px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
+        <div style={{ position: 'absolute', bottom: '-30px', left: '20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+        <div style={{ position: 'relative' }}>
+          <div className="flex items-center gap-2" style={{ marginBottom: '8px' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+              ⚡
+            </div>
+            <span className="font-display" style={{ fontSize: '1.8rem', color: 'white', letterSpacing: '0.02em' }}>FitSocial</span>
+          </div>
+          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.4 }}>
+            Allenati, sfida gli amici e vinci premi reali.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+            {['🏃 Corsa', '💪 Gym', '🚴 Cycling'].map(t => (
+              <span key={t} style={{
+                fontSize: '11px', color: 'rgba(255,255,255,0.8)',
+                background: 'rgba(255,255,255,0.12)',
+                padding: '4px 10px', borderRadius: '20px', fontWeight: 500,
+              }}>{t}</span>
+            ))}
+          </div>
         </div>
-        <p style={{ fontSize: '10px', color: 'var(--text-sub)', letterSpacing: '0.22em', fontWeight: 700, marginTop: '6px' }}>
-          ALLENATI · SFIDA · VINCI
-        </p>
       </div>
 
-      <div style={{ height: '1px', background: 'var(--border)', margin: '28px 0 0' }} />
-
-      {/* Form area */}
-      <div style={{ flex: 1, padding: '28px 24px 40px', maxWidth: '440px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <p style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.2em', marginBottom: '20px' }}>
-          ACCEDI AL TUO ACCOUNT
+      {/* FORM AREA */}
+      <div style={{ flex: 1, padding: '28px 24px 40px', maxWidth: '440px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column' }}>
+        <p style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text)', marginBottom: '6px', fontFamily: "'Sora', sans-serif" }}>
+          Bentornato 👋
+        </p>
+        <p style={{ fontSize: '13px', color: 'var(--text-sub)', marginBottom: '24px' }}>
+          Accedi per continuare il tuo allenamento
         </p>
 
         {error && (
-          <div style={{ fontSize: '12px', color: 'var(--orange)', background: 'rgba(255,69,0,0.06)', border: '1px solid rgba(255,69,0,0.2)', padding: '10px 14px', borderRadius: '4px', marginBottom: '14px' }}>
+          <div style={{
+            fontSize: '13px', color: '#DC2626',
+            background: '#FEF2F2', border: '1px solid #FEE2E2',
+            padding: '10px 14px', borderRadius: '10px', marginBottom: '16px',
+          }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required
-            style={inputStyle}
-            onFocus={e => (e.target.style.borderColor = 'var(--lime)')}
-            onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-          />
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required
-            style={inputStyle}
-            onFocus={e => (e.target.style.borderColor = 'var(--lime)')}
-            onBlur={e => (e.target.style.borderColor = 'var(--border)')}
-          />
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div>
+            <label htmlFor="login-email" style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>Email</label>
+            <input id="login-email" type="email" placeholder="la@tua.email" value={email} onChange={e => setEmail(e.target.value)} required
+              style={inputStyle}
+              onFocus={e => (e.target.style.borderColor = 'var(--indigo)')}
+              onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+            />
+          </div>
+          <div>
+            <label htmlFor="login-password" style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', display: 'block' }}>Password</label>
+            <input id="login-password" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required
+              style={inputStyle}
+              onFocus={e => (e.target.style.borderColor = 'var(--indigo)')}
+              onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+            />
+            <button type="button" onClick={async () => {
+              if (!email.trim()) { setError('Inserisci la tua email prima di resettare la password'); return }
+              try {
+                const { sendPasswordResetEmail } = await import('firebase/auth')
+                const { auth } = await import('../firebase')
+                await sendPasswordResetEmail(auth, email)
+                setError('Email di reset inviata! Controlla la tua casella di posta.')
+              } catch {
+                setError('Impossibile inviare l\'email di reset. Verifica l\'indirizzo.')
+              }
+            }} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: '12px', color: 'var(--indigo)', fontWeight: 600,
+              padding: '6px 0 0', fontFamily: "'DM Sans', sans-serif",
+            }}>
+              Password dimenticata?
+            </button>
+          </div>
           <button type="submit" disabled={loading} className="font-display"
-            style={{ background: loading ? 'rgba(196,255,0,0.25)' : 'var(--lime)', color: '#000', padding: '14px', fontSize: '1.3rem', letterSpacing: '0.06em', borderRadius: '4px', border: 'none', marginTop: '6px', cursor: loading ? 'not-allowed' : 'pointer', transition: 'opacity 0.2s' }}>
-            {loading ? '...' : 'ACCEDI →'}
+            style={{
+              background: loading ? 'var(--bg-surface)' : 'var(--gradient)',
+              color: loading ? 'var(--text-sub)' : 'white',
+              padding: '14px', fontSize: '1rem', letterSpacing: '0.04em',
+              borderRadius: '14px', border: 'none', marginTop: '4px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              boxShadow: loading ? 'none' : '0 4px 16px rgba(79,70,229,0.35)',
+              fontFamily: "'Sora', sans-serif", fontWeight: 700,
+              transition: 'all 0.2s',
+            }}>
+            {loading ? 'Accesso...' : 'Accedi →'}
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '22px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
           <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-          <span style={{ fontSize: '10px', color: 'var(--text-sub)', fontWeight: 700, letterSpacing: '0.12em' }}>OPPURE</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-sub)', fontWeight: 600, letterSpacing: '0.1em' }}>OPPURE</span>
           <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
         </div>
 
         <button onClick={handleGoogle} disabled={loading}
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-strong)', color: 'var(--text)', padding: '13px', fontSize: '13px', fontWeight: 600, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', cursor: 'pointer', width: '100%' }}>
+          style={{
+            background: 'var(--bg-card)', border: '1.5px solid var(--border)',
+            color: 'var(--text)', padding: '13px', fontSize: '13px', fontWeight: 600,
+            borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: '10px', cursor: 'pointer', width: '100%',
+            boxShadow: 'var(--shadow-sm)',
+          }}>
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -105,9 +172,9 @@ export default function LoginPage() {
           Continua con Google
         </button>
 
-        <p style={{ textAlign: 'center', marginTop: '28px', fontSize: '13px', color: 'var(--text-sub)' }}>
+        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', color: 'var(--text-sub)' }}>
           Non hai un account?{' '}
-          <Link to="/register" style={{ color: 'var(--lime)', fontWeight: 700, textDecoration: 'none' }}>Registrati</Link>
+          <Link to="/register" style={{ color: 'var(--indigo)', fontWeight: 700, textDecoration: 'none' }}>Registrati</Link>
         </p>
       </div>
     </div>

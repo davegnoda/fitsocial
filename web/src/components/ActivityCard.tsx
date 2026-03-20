@@ -8,15 +8,7 @@ interface Props {
   delay?: number
 }
 
-const COLOR_MAP: Record<string, string> = {
-  '#3b82f6': 'var(--blue)',
-  '#f97316': 'var(--orange)',
-  '#10b981': 'var(--green)',
-  '#ef4444': 'var(--pink)',
-}
-
 export default function ActivityCard({ icon, label, value, unit, goal, color, delay = 0 }: Props) {
-  const c = COLOR_MAP[color] ?? color
   const pct = Math.min(100, Math.round((value / goal) * 100))
   const displayValue = value >= 1000 ? (value / 1000).toFixed(1) + 'k' : String(value)
 
@@ -26,33 +18,44 @@ export default function ActivityCard({ icon, label, value, unit, goal, color, de
       style={{
         animationDelay: `${delay}ms`,
         background: 'var(--bg-card)',
-        borderLeft: `3px solid ${c}`,
-        padding: '14px 16px 12px',
-        borderRadius: '0 6px 6px 0',
+        borderRadius: 'var(--radius)',
+        padding: '16px',
+        boxShadow: 'var(--shadow-sm)',
+        border: '1px solid var(--border)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '14px',
       }}
     >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span style={{ fontSize: '16px' }}>{icon}</span>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+      <div style={{
+        width: '44px', height: '44px', borderRadius: '12px',
+        background: `${color}15`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '20px', flexShrink: 0,
+      }}>
+        {icon}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="flex items-center justify-between mb-1.5">
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             {label}
           </span>
+          <span style={{ fontSize: '11px', fontWeight: 700, color }}>
+            {pct}%
+          </span>
         </div>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: c }}>
-          {pct}%
-        </span>
+        <div style={{ height: '4px', background: 'var(--bg-surface)', borderRadius: '2px', overflow: 'hidden' }}>
+          <div
+            className="animate-fill"
+            style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: '2px', animationDelay: `${delay + 200}ms` }}
+          />
+        </div>
       </div>
-      <div className="flex items-end justify-between">
-        <span className="font-display" style={{ fontSize: '2.6rem', color: 'var(--text)', lineHeight: 1 }}>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <span className="font-display" style={{ fontSize: '1.6rem', color: 'var(--text)', lineHeight: 1, display: 'block' }}>
           {displayValue}
         </span>
-        <span style={{ fontSize: '11px', color: 'var(--text-sub)', paddingBottom: '4px' }}>{unit}</span>
-      </div>
-      <div style={{ height: '2px', background: 'var(--border)', marginTop: '10px', borderRadius: '1px', overflow: 'hidden' }}>
-        <div
-          className="animate-fill"
-          style={{ width: `${pct}%`, height: '100%', background: c, animationDelay: `${delay + 200}ms` }}
-        />
+        <span style={{ fontSize: '10px', color: 'var(--text-sub)' }}>{unit}</span>
       </div>
     </div>
   )
