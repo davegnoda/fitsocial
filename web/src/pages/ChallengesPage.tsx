@@ -5,7 +5,8 @@ import { getTopUsers, getTopUsersByRecentActivity } from '../services/userServic
 import LeaderboardCard from '../components/LeaderboardCard'
 import CreateChallengeModal from '../components/CreateChallengeModal'
 import Layout from '../components/Layout'
-import type { Challenge, UserProfile } from '../types'
+import { getUserDuels } from '../services/duelService'
+import type { Challenge, UserProfile, Duel } from '../types'
 
 const TYPE_ICONS: Record<string, string> = { steps: '👟', calories: '🔥', distance: '📍', workouts: '💪' }
 const TYPE_COLORS: Record<string, string> = { steps: '#F97316', distance: '#3B82F6', calories: '#EF4444', workouts: '#7C3AED' }
@@ -13,6 +14,31 @@ const TYPE_COLORS: Record<string, string> = { steps: '#F97316', distance: '#3B82
 const PERIOD_LABEL: Record<string, string> = { daily: 'Oggi', weekly: 'Questa settimana', monthly: 'Questo mese' }
 
 const AVATAR_COLORS = ['#4F46E5', '#0D9488', '#EA580C', '#DB2777', '#6D28D9', '#059669']
+
+const DUEL_TYPE_ICONS: Record<string, string> = { steps: '👟', calories: '🔥', distance: '📍' }
+const DUEL_TYPE_UNITS: Record<string, string> = { steps: 'passi', calories: 'kcal', distance: 'km' }
+
+const DEMO_DUELS: Duel[] = [
+  {
+    id: 'demo-d1', challenger: 'u1', challengerName: 'Marco R.', opponent: 'u2', opponentName: 'Luca B.',
+    type: 'steps', duration: '24h', status: 'active',
+    scores: { u1: 6420, u2: 5180 }, createdAt: Date.now() - 3600000 * 8,
+    endsAt: Date.now() + 3600000 * 16,
+  },
+  {
+    id: 'demo-d2', challenger: 'u3', challengerName: 'Sara M.', opponent: 'demo-user', opponentName: 'Tu',
+    type: 'calories', duration: '48h', status: 'pending',
+    scores: { u3: 0, 'demo-user': 0 }, createdAt: Date.now() - 3600000,
+    endsAt: 0,
+  },
+  {
+    id: 'demo-d3', challenger: 'u4', challengerName: 'Andrea P.', opponent: 'u5', opponentName: 'Giulia F.',
+    type: 'distance', duration: '7d', status: 'active',
+    bet: { amount: 5, currency: 'EUR' },
+    scores: { u4: 12, u5: 18 }, createdAt: Date.now() - 86400000 * 2,
+    endsAt: Date.now() + 86400000 * 5,
+  },
+]
 
 const DEMO_CHALLENGES: Challenge[] = [
   {
@@ -50,7 +76,8 @@ export default function ChallengesPage() {
   const [challenges, setChallenges] = useState<Challenge[]>([])
   const [loading, setLoading] = useState(true)
   const [joining, setJoining] = useState<string | null>(null)
-  const [tab, setTab] = useState<'sfide' | 'global'>('sfide')
+  const [tab, setTab] = useState<'sfide' | 'global' | 'duelli'>('sfide')
+  const [duels, setDuels] = useState<Duel[]>([])
   const [topUsers, setTopUsers] = useState<UserProfile[]>([])
   const [showCreate, setShowCreate] = useState(false)
   const [globalPeriod, setGlobalPeriod] = useState<'always' | 'week' | 'month'>('always')
@@ -65,6 +92,7 @@ export default function ChallengesPage() {
   }
 
   useEffect(() => { load() }, [])
+  useEffect(() => { if (user) getUserDuels(user.uid).then(setDuels).catch(() => {}) }, [user])
   useEffect(() => {
     getTopUsers(10).then(u => { setTopUsers(u); if (globalPeriod === 'always') setRankedUsers(u) }).catch(() => {})
   }, [])
@@ -91,7 +119,16 @@ export default function ChallengesPage() {
     return d <= 1 ? '1 giorno' : `${d} giorni`
   }
 
-  const TABS = [{ key: 'sfide', label: 'Sfide' }, { key: 'global', label: 'Globale' }]
+  const TABS = [{ key: 'sfide', label: 'Sfide' }, { key: 'global', label: 'Globale' }, { key: 'duelli', label: 'Duelli' }]
+
+  const formatCountdown = (endsAt: number) => {
+    const diff = endsAt - Date.now()
+    if (diff <= 0) return 'Scaduto'
+    const h = Math.floor(diff / 3600000)
+    const m = Math.floor((diff % 3600000) / 60000)
+    if (h >= 24) { const d = Math.floor(h / 24); return `${d}g ${h % 24}h` }
+    return `${h}h ${m}m`
+  }
 
   return (
     <Layout>
@@ -235,6 +272,188 @@ export default function ChallengesPage() {
             })}
           </div>
         )}
+
+        {/* DUELS TAB */}
+        {!loading && tab === 'duelli' && (() => {
+          const allDuels = duels.length > 0 ? duels : DEMO_DUELS
+          return (
+            <div>
+              <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '12px' }}>
+                ⚔️ I tuoi duelli · {allDuels.length}
+              </p>
+              {allDuels.map((d, idx) => {
+                const icon = DUEL_TYPE_ICONS[d.type] ?? '🏆'
+                const unit = DUEL_TYPE_UNITS[d.type] ?? ''
+                const cScore = d.scores[d.challenger] ?? 0
+                const oScore = d.scores[d.opponent] ?? 0
+                const totalScore = cScore + oScore || 1
+                const cPct = Math.round((cScore / totalScore) * 100)
+                const isCurrentUserOpponent = user && d.opponent === user.uid
+                const cInitials = d.challengerName.slice(0, 2).toUpperCase()
+                const oInitials = d.opponentName.slice(0, 2).toUpperCase()
+                const cColor = AVATAR_COLORS[idx % AVATAR_COLORS.length]
+                const oColor = AVATAR_COLORS[(idx + 3) % AVATAR_COLORS.length]
+
+                return (
+                  <div key={d.id} style={{
+                    background: 'var(--bg-card)',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'var(--shadow-card)',
+                    padding: '16px 18px',
+                    marginBottom: '12px',
+                    animation: 'slide-up 0.3s ease',
+                    animationDelay: `${idx * 0.05}s`,
+                    animationFillMode: 'both',
+                  }}>
+                    {/* Top row: status badge + type/duration */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <span style={{
+                          fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                          padding: '3px 10px', borderRadius: '20px',
+                          background: d.status === 'active' ? 'rgba(16,185,129,0.12)' : d.status === 'pending' ? 'rgba(245,158,11,0.12)' : 'rgba(107,114,128,0.12)',
+                          color: d.status === 'active' ? '#10B981' : d.status === 'pending' ? '#F59E0B' : '#6B7280',
+                          animation: d.status === 'active' ? 'pulse 2s infinite' : 'none',
+                        }}>
+                          {d.status === 'active' ? '● ATTIVO' : d.status === 'pending' ? '● IN ATTESA' : 'COMPLETATO'}
+                        </span>
+                        {d.bet && (
+                          <span style={{
+                            fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em',
+                            padding: '3px 10px', borderRadius: '20px',
+                            background: 'rgba(245,158,11,0.1)', color: '#F59E0B',
+                          }}>
+                            💰 {d.bet.amount} {d.bet.currency}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <span style={{
+                          fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+                          padding: '3px 10px', borderRadius: '20px',
+                          background: 'var(--bg-surface)', color: 'var(--text-sub)',
+                        }}>
+                          {icon} {d.type}
+                        </span>
+                        <span style={{
+                          fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em',
+                          padding: '3px 10px', borderRadius: '20px',
+                          background: 'var(--bg-surface)', color: 'var(--text-sub)',
+                        }}>
+                          ⏱️ {d.duration}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* VS Layout */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                      {/* Challenger */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                        <div style={{
+                          width: '40px', height: '40px', borderRadius: '50%',
+                          background: cColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'white', fontWeight: 700, fontSize: '14px', fontFamily: "'Sora', sans-serif",
+                          marginBottom: '6px',
+                        }}>
+                          {cInitials}
+                        </div>
+                        <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text)', fontFamily: "'DM Sans', sans-serif", textAlign: 'center' }}>
+                          {d.challengerName}
+                        </p>
+                        <p style={{ fontSize: '14px', fontWeight: 800, color: cScore >= oScore ? 'var(--indigo)' : 'var(--text-sub)', fontFamily: "'Sora', sans-serif", marginTop: '2px' }}>
+                          {cScore.toLocaleString('it-IT')}
+                        </p>
+                        <p style={{ fontSize: '10px', color: 'var(--text-sub)', letterSpacing: '0.04em' }}>{unit}</p>
+                      </div>
+
+                      {/* VS badge */}
+                      <div style={{
+                        width: '36px', height: '36px', borderRadius: '50%',
+                        background: 'var(--gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontWeight: 800, fontSize: '11px', fontFamily: "'Sora', sans-serif",
+                        flexShrink: 0,
+                        boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                      }}>
+                        VS
+                      </div>
+
+                      {/* Opponent */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                        <div style={{
+                          width: '40px', height: '40px', borderRadius: '50%',
+                          background: oColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'white', fontWeight: 700, fontSize: '14px', fontFamily: "'Sora', sans-serif",
+                          marginBottom: '6px',
+                        }}>
+                          {oInitials}
+                        </div>
+                        <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text)', fontFamily: "'DM Sans', sans-serif", textAlign: 'center' }}>
+                          {d.opponentName}
+                        </p>
+                        <p style={{ fontSize: '14px', fontWeight: 800, color: oScore >= cScore ? 'var(--indigo)' : 'var(--text-sub)', fontFamily: "'Sora', sans-serif", marginTop: '2px' }}>
+                          {oScore.toLocaleString('it-IT')}
+                        </p>
+                        <p style={{ fontSize: '10px', color: 'var(--text-sub)', letterSpacing: '0.04em' }}>{unit}</p>
+                      </div>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div style={{ height: '8px', borderRadius: '4px', overflow: 'hidden', display: 'flex', marginBottom: '12px', background: 'var(--bg-surface)' }}>
+                      <div style={{
+                        width: `${cPct}%`, height: '100%',
+                        background: 'var(--indigo)',
+                        borderRadius: '4px 0 0 4px',
+                        transition: 'width 0.8s ease',
+                      }} />
+                      <div style={{
+                        width: `${100 - cPct}%`, height: '100%',
+                        background: '#F59E0B',
+                        borderRadius: '0 4px 4px 0',
+                        transition: 'width 0.8s ease',
+                      }} />
+                    </div>
+
+                    {/* Bottom row: countdown + accept button */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      {d.status === 'active' && d.endsAt > 0 && (
+                        <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)', letterSpacing: '0.02em' }}>
+                          ⏳ {formatCountdown(d.endsAt)} rimasti
+                        </span>
+                      )}
+                      {d.status === 'pending' && (
+                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#F59E0B', letterSpacing: '0.02em' }}>
+                          In attesa di accettazione
+                        </span>
+                      )}
+                      {d.status === 'completed' && (
+                        <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)' }}>Completato</span>
+                      )}
+                      {d.status === 'pending' && isCurrentUserOpponent && (
+                        <button style={{
+                          background: 'var(--gradient)',
+                          color: 'white',
+                          padding: '8px 18px',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          borderRadius: '10px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontFamily: "'Sora', sans-serif",
+                          boxShadow: '0 4px 12px rgba(79,70,229,0.3)',
+                          letterSpacing: '0.02em',
+                          transition: 'all 0.2s',
+                        }}>
+                          Accetta ⚔️
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })()}
 
         {/* CHALLENGES TAB */}
         {!loading && tab === 'sfide' && (challenges.length > 0 ? challenges : DEMO_CHALLENGES).map((c, idx) => {

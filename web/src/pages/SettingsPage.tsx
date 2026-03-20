@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { useUser } from '../hooks/useUser'
 import { updateUserProfile } from '../services/userService'
 import { requestPushPermission, isPushSupported } from '../services/pushService'
+import { createCheckoutSession } from '../services/paymentService'
+import { getGoogleFitAuthUrl } from '../services/healthService'
 import { doc, deleteDoc } from 'firebase/firestore'
 import { deleteUser } from 'firebase/auth'
 import { db } from '../firebase'
@@ -32,6 +34,7 @@ export default function SettingsPage() {
   const [pushSupported, setPushSupported] = useState(false)
   const [pushLoading, setPushLoading] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [premiumLoading, setPremiumLoading] = useState(false)
 
   useEffect(() => {
     isPushSupported().then(setPushSupported)
@@ -165,6 +168,112 @@ export default function SettingsPage() {
             letterSpacing: '0.01em',
           }}>
             Salvato!
+          </div>
+        )}
+
+        {/* PREMIUM BANNER */}
+        {profile?.plan !== 'premium' ? (
+          <div style={{
+            background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+            borderRadius: 'var(--radius-lg, 16px)',
+            padding: '20px',
+            marginBottom: '20px',
+            position: 'relative',
+            overflow: 'hidden',
+            animation: 'slide-up 0.3s ease',
+          }}>
+            {/* Subtle pattern overlay */}
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+              backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(255,255,255,0.06) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%)',
+              pointerEvents: 'none',
+            }} />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                <span style={{ fontSize: '22px' }}>👑</span>
+                <h3 style={{
+                  fontFamily: "'Sora', sans-serif",
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  color: 'white',
+                  letterSpacing: '-0.01em',
+                }}>
+                  PASSA A PREMIUM
+                </h3>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                {[
+                  { icon: '🤖', text: 'AI Coach personalizzato' },
+                  { icon: '🚫', text: 'Zero Ads' },
+                  { icon: '🏆', text: 'Crea Sfide a Premi' },
+                  { icon: '📊', text: 'Analisi AI Avanzata' },
+                ].map((b, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '14px' }}>{b.icon}</span>
+                    <span style={{
+                      fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.9)',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}>{b.text}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <p style={{
+                  fontSize: '20px', fontWeight: 800, color: 'white',
+                  fontFamily: "'Sora', sans-serif",
+                }}>
+                  €6.99<span style={{ fontSize: '12px', fontWeight: 500, opacity: 0.8 }}>/mese</span>
+                </p>
+                <button
+                  onClick={async () => {
+                    if (!user) return
+                    setPremiumLoading(true)
+                    try {
+                      const url = await createCheckoutSession(user.uid)
+                      window.location.href = url
+                    } catch {
+                      setPremiumLoading(false)
+                    }
+                  }}
+                  disabled={premiumLoading}
+                  style={{
+                    padding: '10px 24px',
+                    background: 'white',
+                    color: '#4F46E5',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: premiumLoading ? 'wait' : 'pointer',
+                    fontFamily: "'DM Sans', sans-serif",
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  {premiumLoading ? '...' : 'Attiva Premium'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            background: 'var(--green-bg, #F0FDF4)',
+            border: '1px solid #BBF7D0',
+            borderRadius: '10px',
+            padding: '10px 14px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            animation: 'slide-up 0.3s ease',
+          }}>
+            <span style={{
+              fontSize: '12px', fontWeight: 700,
+              color: 'var(--green, #16A34A)',
+              fontFamily: "'DM Sans', sans-serif",
+              letterSpacing: '0.02em',
+            }}>
+              PREMIUM ATTIVO ✓
+            </span>
           </div>
         )}
 
@@ -389,6 +498,115 @@ export default function SettingsPage() {
             </div>
           </div>
         )}
+
+        {/* DISPOSITIVI SECTION */}
+        <p style={sectionHeader}>Dispositivi</p>
+        <div style={{
+          background: 'var(--bg-card)',
+          borderRadius: 'var(--radius)',
+          padding: '4px 0',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow-card)',
+          marginBottom: '28px',
+          animation: 'slide-up 0.3s ease',
+        }}>
+          {/* Google Fit */}
+          <div style={{
+            padding: '14px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            borderBottom: '1px solid var(--border)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>⌚</span>
+              <div>
+                <p style={{
+                  fontSize: '13px', fontWeight: 600, color: 'var(--text)',
+                  fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.01em',
+                }}>Google Fit</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-sub)', marginTop: '1px' }}>
+                  Sincronizza passi, calorie e battito
+                </p>
+              </div>
+            </div>
+            {profile?.connectedDevices?.includes('google_fit') ? (
+              <span style={{
+                padding: '4px 12px', borderRadius: '20px',
+                background: 'var(--green-bg, #F0FDF4)',
+                color: 'var(--green, #16A34A)',
+                fontSize: '11px', fontWeight: 700,
+                fontFamily: "'DM Sans', sans-serif",
+              }}>
+                Connesso ✓
+              </span>
+            ) : (
+              <button
+                onClick={() => {
+                  if (!user) return
+                  window.location.href = getGoogleFitAuthUrl(user.uid)
+                }}
+                style={{
+                  padding: '6px 16px', borderRadius: '20px', border: 'none',
+                  background: 'var(--gradient)',
+                  color: 'white',
+                  fontSize: '12px', fontWeight: 700, cursor: 'pointer',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                Connetti
+              </button>
+            )}
+          </div>
+          {/* Fitbit */}
+          <div style={{
+            padding: '14px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            borderBottom: '1px solid var(--border)',
+            opacity: 0.5,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>⌚</span>
+              <p style={{
+                fontSize: '13px', fontWeight: 600, color: 'var(--text)',
+                fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.01em',
+              }}>Fitbit</p>
+            </div>
+            <span style={{
+              fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)',
+              fontFamily: "'DM Sans', sans-serif",
+            }}>
+              Prossimamente
+            </span>
+          </div>
+          {/* Garmin */}
+          <div style={{
+            padding: '14px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            opacity: 0.5,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '20px' }}>⌚</span>
+              <p style={{
+                fontSize: '13px', fontWeight: 600, color: 'var(--text)',
+                fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.01em',
+              }}>Garmin</p>
+            </div>
+            <span style={{
+              fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)',
+              fontFamily: "'DM Sans', sans-serif",
+            }}>
+              Prossimamente
+            </span>
+          </div>
+        </div>
 
         {/* DANGER ZONE */}
         <p style={sectionHeader}>Zona Pericolosa</p>

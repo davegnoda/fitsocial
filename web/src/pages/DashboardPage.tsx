@@ -10,7 +10,8 @@ import { getUnreadCount, getNotifications } from '../services/notificationServic
 import LogWorkoutModal from '../components/LogWorkoutModal'
 import NotificationsPanel from '../components/NotificationsPanel'
 import Layout from '../components/Layout'
-import type { Activity } from '../types'
+import type { Activity, WeeklyLeague } from '../types'
+import { getCurrentLeague, getUserTier } from '../services/leagueService'
 
 const DAYS_IT = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM']
 
@@ -86,6 +87,8 @@ export default function DashboardPage() {
   const [streakToast, setStreakToast] = useState(false)
   const [prToast, setPrToast] = useState<string | null>(null)
   const [deloadDismissed, setDeloadDismissed] = useState(() => localStorage.getItem('deload_ok') === new Date().toISOString().slice(0, 7))
+  const [league, setLeague] = useState<WeeklyLeague | null>(null)
+  const [userTier, setUserTier] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -100,6 +103,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) getUnreadCount(user.uid).then(setUnreadCount).catch(() => {})
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    getCurrentLeague().then(l => {
+      if (l) {
+        setLeague(l)
+        setUserTier(getUserTier(l, user.uid))
+      }
+    }).catch(() => {})
   }, [user])
 
   // Load active users from feed (with timeout so it never hangs) + auto-refresh
@@ -612,6 +625,90 @@ export default function DashboardPage() {
         </div>
         )
       })()}
+
+      {/* ══ LEGA SETTIMANALE ══ */}
+      <div style={{ padding: '0 20px 20px' }}>
+        {(() => {
+          const tierGradients: Record<string, string> = {
+            bronze: 'linear-gradient(135deg, #CD7F32, #8B4513)',
+            silver: 'linear-gradient(135deg, #C0C0C0, #808080)',
+            gold: 'linear-gradient(135deg, #FFD700, #FFA500)',
+            diamond: 'linear-gradient(135deg, #B9F2FF, #4FC3F7)',
+          }
+          const tierNames: Record<string, string> = {
+            bronze: 'BRONZE',
+            silver: 'SILVER',
+            gold: 'GOLD',
+            diamond: 'DIAMOND',
+          }
+          const borderGrad = userTier ? tierGradients[userTier] ?? tierGradients.bronze : tierGradients.bronze
+
+          if (!league) {
+            return (
+              <div style={{
+                background: 'var(--bg-card)',
+                borderRadius: 'var(--radius-lg, 16px)',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow-card)',
+                padding: '16px',
+                textAlign: 'center',
+                animation: 'slide-up 0.3s ease',
+              }}>
+                <span style={{ fontSize: '20px' }}>🏆</span>
+                <p style={{
+                  fontSize: '11px', fontWeight: 700, color: 'var(--text-sub)',
+                  letterSpacing: '0.08em', marginTop: '6px',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>LEGA SETTIMANALE</p>
+                <p style={{
+                  fontSize: '13px', fontWeight: 600, color: 'var(--text-sub)',
+                  fontFamily: "'DM Sans', sans-serif", marginTop: '6px',
+                }}>Le leghe iniziano lunedì!</p>
+              </div>
+            )
+          }
+
+          return (
+            <div style={{
+              background: borderGrad,
+              borderRadius: 'var(--radius-lg, 16px)',
+              padding: '2px',
+              animation: 'slide-up 0.3s ease',
+            }}>
+              <div style={{
+                background: 'var(--bg-card)',
+                borderRadius: 'calc(var(--radius-lg, 16px) - 2px)',
+                padding: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '14px',
+              }}>
+                <span style={{ fontSize: '28px' }}>🏆</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{
+                    fontSize: '10px', fontWeight: 700, color: 'var(--text-sub)',
+                    letterSpacing: '0.1em',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>LEGA SETTIMANALE</p>
+                  <p style={{
+                    fontSize: '20px', fontWeight: 800,
+                    fontFamily: "'Sora', sans-serif",
+                    color: 'var(--text)',
+                    lineHeight: 1.2,
+                    marginTop: '2px',
+                    letterSpacing: '-0.01em',
+                  }}>{userTier ? tierNames[userTier] ?? userTier.toUpperCase() : 'UNRANKED'}</p>
+                  <p style={{
+                    fontSize: '10px', fontWeight: 500, color: 'var(--text-sub)',
+                    fontFamily: "'DM Sans', sans-serif",
+                    marginTop: '2px',
+                  }}>Top 3 salgono, ultimi 3 scendono</p>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+      </div>
 
       {/* ══ ATTIVI ORA ══ */}
       {(() => {
