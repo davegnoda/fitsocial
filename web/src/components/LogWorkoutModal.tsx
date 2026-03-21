@@ -317,6 +317,7 @@ export default function LogWorkoutModal({ onSave, onClose, existing }: Props) {
       sleep: sleepHours ? parseFloat(sleepHours) : undefined,
       preWorkoutMood: mood ?? undefined,
       rpe: rpe ?? undefined,
+      verified: false,
     }
 
     // Save last workout for quick-repeat
