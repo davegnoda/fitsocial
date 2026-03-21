@@ -1,6 +1,6 @@
 import { onDocumentCreated } from 'firebase-functions/v2/firestore'
 import { getFirestore } from 'firebase-admin/firestore'
-import { calculateXP, calculateLevel, calculateStreak, getScoreForType, estimate1RM } from '../utils/scoring'
+import { calculateXP, calculateLevel, calculateStreak, getMetricValue, estimate1RM } from '../utils/scoring'
 import { sendNotification } from '../utils/notifications'
 
 const db = getFirestore()
@@ -45,7 +45,7 @@ export const onActivityCreated = onDocumentCreated(
     )
 
     await Promise.all(joinedChallenges.map(c => {
-      const score = getScoreForType(c.data().type, activity as any)
+      const score = getMetricValue(c.data().type, activity as any)
       return c.ref.update({
         [`scores.${userId}`]: {
           userId,
@@ -67,7 +67,7 @@ export const onActivityCreated = onDocumentCreated(
     })
 
     await Promise.all(userDuels.map(d => {
-      const score = getScoreForType(d.data().type, activity as any)
+      const score = getMetricValue(d.data().type, activity as any)
       return d.ref.update({ [`scores.${userId}`]: score })
     }))
 

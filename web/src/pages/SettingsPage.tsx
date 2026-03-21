@@ -5,7 +5,8 @@ import { useUser } from '../hooks/useUser'
 import { updateUserProfile } from '../services/userService'
 import { requestPushPermission, isPushSupported } from '../services/pushService'
 import { createCheckoutSession } from '../services/paymentService'
-import { getGoogleFitAuthUrl } from '../services/healthService'
+import { PROVIDERS } from '../services/healthService'
+import type { DeviceProvider } from '../types'
 import { doc, deleteDoc } from 'firebase/firestore'
 import { deleteUser } from 'firebase/auth'
 import { db } from '../firebase'
@@ -501,6 +502,9 @@ export default function SettingsPage() {
 
         {/* DISPOSITIVI SECTION */}
         <p style={sectionHeader}>Dispositivi</p>
+        <p style={{ fontSize: '12px', color: 'var(--text-sub)', marginBottom: '12px', lineHeight: 1.4 }}>
+          Collega il tuo smartwatch per partecipare alle sfide. Solo dati verificati contano.
+        </p>
         <div style={{
           background: 'var(--bg-card)',
           borderRadius: 'var(--radius)',
@@ -510,102 +514,70 @@ export default function SettingsPage() {
           marginBottom: '28px',
           animation: 'slide-up 0.3s ease',
         }}>
-          {/* Google Fit */}
-          <div style={{
-            padding: '14px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            borderBottom: '1px solid var(--border)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '20px' }}>⌚</span>
-              <div>
-                <p style={{
-                  fontSize: '13px', fontWeight: 600, color: 'var(--text)',
-                  fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.01em',
-                }}>Google Fit</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-sub)', marginTop: '1px' }}>
-                  Sincronizza passi, calorie e battito
-                </p>
-              </div>
-            </div>
-            {profile?.connectedDevices?.includes('google_fit') ? (
-              <span style={{
-                padding: '4px 12px', borderRadius: '20px',
-                background: 'var(--green-bg, #F0FDF4)',
-                color: 'var(--green, #16A34A)',
-                fontSize: '11px', fontWeight: 700,
-                fontFamily: "'DM Sans', sans-serif",
+          {(Object.entries(PROVIDERS) as [DeviceProvider, typeof PROVIDERS[DeviceProvider]][]).map(([key, provider], idx, arr) => {
+            const isConnected = profile?.connectedDevices?.includes(key)
+            const authUrl = provider.authUrl(user?.uid ?? '')
+            const canConnect = provider.available && !!authUrl
+            return (
+              <div key={key} style={{
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px',
+                borderBottom: idx < arr.length - 1 ? '1px solid var(--border)' : 'none',
               }}>
-                Connesso ✓
-              </span>
-            ) : (
-              <button
-                onClick={() => {
-                  if (!user) return
-                  window.location.href = getGoogleFitAuthUrl(user.uid)
-                }}
-                style={{
-                  padding: '6px 16px', borderRadius: '20px', border: 'none',
-                  background: 'var(--gradient)',
-                  color: 'white',
-                  fontSize: '12px', fontWeight: 700, cursor: 'pointer',
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              >
-                Connetti
-              </button>
-            )}
-          </div>
-          {/* Fitbit */}
-          <div style={{
-            padding: '14px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            borderBottom: '1px solid var(--border)',
-            opacity: 0.5,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '20px' }}>⌚</span>
-              <p style={{
-                fontSize: '13px', fontWeight: 600, color: 'var(--text)',
-                fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.01em',
-              }}>Fitbit</p>
-            </div>
-            <span style={{
-              fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)',
-              fontFamily: "'DM Sans', sans-serif",
-            }}>
-              Prossimamente
-            </span>
-          </div>
-          {/* Garmin */}
-          <div style={{
-            padding: '14px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            opacity: 0.5,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '20px' }}>⌚</span>
-              <p style={{
-                fontSize: '13px', fontWeight: 600, color: 'var(--text)',
-                fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.01em',
-              }}>Garmin</p>
-            </div>
-            <span style={{
-              fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)',
-              fontFamily: "'DM Sans', sans-serif",
-            }}>
-              Prossimamente
-            </span>
-          </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '36px', height: '36px', borderRadius: '10px',
+                    background: `${provider.color}15`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '18px', flexShrink: 0,
+                  }}>
+                    {provider.icon}
+                  </div>
+                  <div>
+                    <p style={{
+                      fontSize: '13px', fontWeight: 600, color: 'var(--text)',
+                      fontFamily: "'DM Sans', sans-serif", letterSpacing: '0.01em',
+                    }}>{provider.name}</p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-sub)', marginTop: '1px' }}>
+                      Passi, calorie, battito, zone HR
+                    </p>
+                  </div>
+                </div>
+                {isConnected ? (
+                  <span style={{
+                    padding: '4px 12px', borderRadius: '20px',
+                    background: '#F0FDF4', color: '#16A34A',
+                    fontSize: '11px', fontWeight: 700,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>
+                    Connesso
+                  </span>
+                ) : canConnect ? (
+                  <button
+                    onClick={() => { window.location.href = authUrl }}
+                    style={{
+                      padding: '6px 16px', borderRadius: '20px', border: 'none',
+                      background: provider.color, color: 'white',
+                      fontSize: '12px', fontWeight: 700, cursor: 'pointer',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  >
+                    Connetti
+                  </button>
+                ) : (
+                  <span style={{
+                    fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>
+                    In arrivo
+                  </span>
+                )}
+              </div>
+            )
+          })}
         </div>
 
         {/* DANGER ZONE */}

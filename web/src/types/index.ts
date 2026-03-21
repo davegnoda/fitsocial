@@ -23,10 +23,23 @@ export interface Activity {
   calories: number
   distance: number
   heartRate?: number
+  heartRateMax?: number
+  hrZoneMinutes?: HrZoneMinutes  // time spent in each HR zone (from smartwatch)
+  activeMinutes?: number         // total active minutes (from smartwatch)
   sleep?: number
+  source?: 'manual' | DeviceProvider
+  verified: boolean              // true only if from smartwatch
   preWorkoutMood?: 'stanco' | 'normale' | 'carico'
   rpe?: number // Rate of Perceived Exertion 1-10 (post-workout)
   workouts: Workout[]
+}
+
+export interface HrZoneMinutes {
+  zone1_warmup: number    // 50-60% max HR
+  zone2_fat_burn: number  // 60-70% max HR
+  zone3_cardio: number    // 70-80% max HR
+  zone4_peak: number      // 80-90% max HR
+  zone5_max: number       // 90-100% max HR
 }
 
 export interface WeightEntry {
@@ -87,10 +100,14 @@ export interface GpsPoint {
   timestamp: number
 }
 
+export type ChallengeMetric = 'distance' | 'active_minutes' | 'calories' | 'hr_zone_minutes' | 'workouts'
+export type ChallengeScoringMode = 'improvement' | 'consistency' | 'zone_training' | 'composite'
+
 export interface Challenge {
   id: string
   title: string
-  type: 'steps' | 'calories' | 'distance' | 'workouts'
+  type: ChallengeMetric
+  scoringMode: ChallengeScoringMode
   period: 'daily' | 'weekly' | 'monthly'
   fitnessLevel: 'beginner' | 'intermediate' | 'advanced' | 'all'
   target?: number
@@ -99,6 +116,7 @@ export interface Challenge {
   leaderboard: LeaderboardEntry[]
   startDate: number
   endDate: number
+  verifiedOnly: true // challenges ALWAYS require smartwatch — enforced
 }
 
 export interface Prize {
@@ -112,7 +130,10 @@ export interface LeaderboardEntry {
   userId: string
   userName: string
   score: number
-  verified: boolean
+  verified: true // always true — only verified data counts
+  improvementPct?: number   // % improvement vs personal baseline
+  consistencyDays?: number  // consecutive days hitting target
+  hrZoneMinutes?: number    // minutes in target HR zone
 }
 
 export interface AppRoute {
@@ -188,8 +209,10 @@ export interface FeedEntry {
 
 // --- Phase 1: New types ---
 
+export type DeviceProvider = 'apple_health' | 'google_fit' | 'samsung_health' | 'fitbit' | 'garmin'
+
 export interface ConnectedDevice {
-  provider: 'google_fit' | 'fitbit' | 'garmin' | 'terra'
+  provider: DeviceProvider
   connectedAt: number
   lastSync: number
   scopes: string[]
@@ -201,12 +224,15 @@ export interface Duel {
   challengerName: string
   opponent: string
   opponentName: string
-  type: 'steps' | 'calories' | 'distance'
+  type: ChallengeMetric
+  scoringMode: ChallengeScoringMode
   duration: '24h' | '48h' | '7d'
   status: 'pending' | 'active' | 'completed'
   bet?: { amount: number; currency: string }
   scores: Record<string, number>
+  improvementScores?: Record<string, number>  // % improvement per user
   winnerId?: string
+  verifiedOnly: true // always requires smartwatch
   createdAt: number
   endsAt: number
 }

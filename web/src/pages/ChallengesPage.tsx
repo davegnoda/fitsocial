@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useUser } from '../hooks/useUser'
 import { getActiveChallenges, joinChallenge } from '../services/challengeService'
 import { getTopUsers, getTopUsersByRecentActivity } from '../services/userService'
+import { hasConnectedDevice } from '../services/healthService'
 import LeaderboardCard from '../components/LeaderboardCard'
 import CreateChallengeModal from '../components/CreateChallengeModal'
 import CreateDuelModal from '../components/CreateDuelModal'
@@ -9,8 +12,9 @@ import Layout from '../components/Layout'
 import { getUserDuels } from '../services/duelService'
 import type { Challenge, UserProfile, Duel, StreakBattle } from '../types'
 
-const TYPE_ICONS: Record<string, string> = { steps: '👟', calories: '🔥', distance: '📍', workouts: '💪' }
-const TYPE_COLORS: Record<string, string> = { steps: '#F97316', distance: '#3B82F6', calories: '#EF4444', workouts: '#7C3AED' }
+const TYPE_ICONS: Record<string, string> = { distance: '📍', active_minutes: '⏱️', calories: '🔥', hr_zone_minutes: '❤️', workouts: '💪' }
+const TYPE_COLORS: Record<string, string> = { distance: '#3B82F6', active_minutes: '#0D9488', calories: '#EF4444', hr_zone_minutes: '#DC2626', workouts: '#7C3AED' }
+const SCORING_LABELS: Record<string, string> = { improvement: 'Miglioramento', consistency: 'Costanza', zone_training: 'Zone HR', composite: 'Composito' }
 
 const PERIOD_LABEL: Record<string, string> = { daily: 'Oggi', weekly: 'Questa settimana', monthly: 'Questo mese' }
 
@@ -22,6 +26,9 @@ const DUEL_TYPE_UNITS: Record<string, string> = { steps: 'passi', calories: 'kca
 
 export default function ChallengesPage() {
   const { user } = useAuth()
+  const { profile } = useUser()
+  const navigate = useNavigate()
+  const deviceConnected = hasConnectedDevice(profile?.connectedDevices ?? [])
   const [challenges, setChallenges] = useState<Challenge[]>([])
   const [loading, setLoading] = useState(true)
   const [joining, setJoining] = useState<string | null>(null)
@@ -102,6 +109,38 @@ export default function ChallengesPage() {
         <p style={{ fontSize: '13px', color: 'var(--text-sub)', marginBottom: '20px', lineHeight: 1.4, letterSpacing: '0.01em' }}>
           Completa gli obiettivi validati dai tuoi dispositivi e vinci.
         </p>
+
+        {/* Device required gate */}
+        {!deviceConnected && (
+          <div style={{
+            background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)',
+            borderRadius: '14px',
+            padding: '14px 16px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            border: '1px solid #F59E0B33',
+          }}>
+            <span style={{ fontSize: '28px' }}>⌚</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '13px', fontWeight: 700, color: '#92400E', fontFamily: "'Sora', sans-serif" }}>
+                Smartwatch richiesto
+              </p>
+              <p style={{ fontSize: '11px', color: '#A16207', lineHeight: 1.3, marginTop: '2px' }}>
+                Collega un dispositivo per partecipare. Solo dati verificati contano nelle sfide.
+              </p>
+            </div>
+            <button onClick={() => navigate('/settings')} style={{
+              padding: '8px 14px', borderRadius: '10px', border: 'none',
+              background: '#F59E0B', color: 'white',
+              fontSize: '11px', fontWeight: 700, cursor: 'pointer',
+              fontFamily: "'DM Sans', sans-serif", whiteSpace: 'nowrap',
+            }}>
+              Collega
+            </button>
+          </div>
+        )}
 
         {/* Tab pills */}
         <div className="flex gap-2" style={{ marginBottom: '4px' }}>
