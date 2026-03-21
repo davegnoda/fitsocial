@@ -14,7 +14,6 @@ import type { Challenge, UserProfile, Duel, StreakBattle } from '../types'
 
 const TYPE_ICONS: Record<string, string> = { distance: '📍', active_minutes: '⏱️', calories: '🔥', hr_zone_minutes: '❤️', workouts: '💪' }
 const TYPE_COLORS: Record<string, string> = { distance: '#3B82F6', active_minutes: '#0D9488', calories: '#EF4444', hr_zone_minutes: '#DC2626', workouts: '#7C3AED' }
-const SCORING_LABELS: Record<string, string> = { improvement: 'Miglioramento', consistency: 'Costanza', zone_training: 'Zone HR', composite: 'Composito' }
 
 const PERIOD_LABEL: Record<string, string> = { daily: 'Oggi', weekly: 'Questa settimana', monthly: 'Questo mese' }
 

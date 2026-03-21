@@ -7,9 +7,9 @@ interface Props {
 }
 
 const TYPES: { value: Duel['type']; icon: string; label: string }[] = [
-  { value: 'steps', icon: '👟', label: 'Passi' },
-  { value: 'calories', icon: '🔥', label: 'Calorie' },
   { value: 'distance', icon: '📍', label: 'Distanza' },
+  { value: 'calories', icon: '🔥', label: 'Calorie' },
+  { value: 'active_minutes', icon: '⏱️', label: 'Minuti Attivi' },
 ]
 
 const DURATIONS: { value: Duel['duration']; label: string }[] = [
@@ -19,7 +19,7 @@ const DURATIONS: { value: Duel['duration']; label: string }[] = [
 ]
 
 export default function CreateDuelModal({ onClose, onCreated }: Props) {
-  const [type, setType] = useState<Duel['type']>('steps')
+  const [type, setType] = useState<Duel['type']>('distance')
   const [duration, setDuration] = useState<Duel['duration']>('24h')
   const [hasBet, setHasBet] = useState(false)
   const [betAmount, setBetAmount] = useState(5)

@@ -9,9 +9,9 @@ interface Props {
 }
 
 const TYPES: { value: Challenge['type']; icon: string; label: string }[] = [
-  { value: 'steps', icon: '👟', label: 'Passi' },
-  { value: 'calories', icon: '🔥', label: 'Calorie' },
   { value: 'distance', icon: '📍', label: 'Distanza' },
+  { value: 'calories', icon: '🔥', label: 'Calorie' },
+  { value: 'active_minutes', icon: '⏱️', label: 'Minuti Attivi' },
   { value: 'workouts', icon: '💪', label: 'Workout' },
 ]
 
@@ -31,7 +31,7 @@ const LEVELS: { value: Challenge['fitnessLevel']; label: string }[] = [
 export default function CreateChallengeModal({ onSave, onClose }: Props) {
   const { user } = useAuth()
   const [title, setTitle] = useState('')
-  const [type, setType] = useState<Challenge['type']>('steps')
+  const [type, setType] = useState<Challenge['type']>('distance')
   const [period, setPeriod] = useState<Challenge['period']>('weekly')
   const [fitnessLevel, setFitnessLevel] = useState<Challenge['fitnessLevel']>('all')
   const [prizeValue, setPrizeValue] = useState('')
@@ -49,6 +49,8 @@ export default function CreateChallengeModal({ onSave, onClose }: Props) {
       await createChallenge({
         title: title.trim(),
         type,
+        scoringMode: 'improvement',
+        verifiedOnly: true,
         period,
         fitnessLevel,
         participants: [user.uid],
