@@ -54,29 +54,6 @@ function timeAgo(date: string): string {
   return `${days}g fa`
 }
 
-/* ── Demo data when Firestore is empty ── */
-const DEMO_STORIES: FeedEntry[] = [
-  { id: 'd1', userId: 'u_marco', userName: 'Marco R.', date: new Date(Date.now() - 3_600_000).toISOString(), workoutTypes: ['running'], duration: 42, calories: 380, distance: 5.2, steps: 6800, reactions: { '🔥': ['u2', 'u3'] }, createdAt: Date.now() },
-  { id: 'd2', userId: 'u_giulia', userName: 'Giulia M.', date: new Date(Date.now() - 7_200_000).toISOString(), workoutTypes: ['yoga'], duration: 55, calories: 180, distance: 0, steps: 0, reactions: { '👏': ['u1'] }, createdAt: Date.now() },
-  { id: 'd3', userId: 'u_luca', userName: 'Luca B.', date: new Date(Date.now() - 10_800_000).toISOString(), workoutTypes: ['gym', 'hiit'], duration: 65, calories: 520, distance: 0, steps: 3200, reactions: { '💪': ['u1', 'u4', 'u5'] }, createdAt: Date.now() },
-  { id: 'd4', userId: 'u_sara', userName: 'Sara T.', date: new Date(Date.now() - 14_400_000).toISOString(), workoutTypes: ['cycling'], duration: 90, calories: 640, distance: 28.5, steps: 0, reactions: { '🔥': ['u1'] }, createdAt: Date.now() },
-  { id: 'd5', userId: 'u_alex', userName: 'Alex P.', date: new Date(Date.now() - 18_000_000).toISOString(), workoutTypes: ['running'], duration: 30, calories: 290, distance: 4.1, steps: 5400, reactions: {}, createdAt: Date.now() },
-  { id: 'd6', userId: 'u_elena', userName: 'Elena V.', date: new Date(Date.now() - 25_000_000).toISOString(), workoutTypes: ['walking'], duration: 45, calories: 150, distance: 3.8, steps: 5100, reactions: { '👏': ['u2', 'u3'] }, createdAt: Date.now() },
-]
-
-const DEMO_GROUPS: CommunityGroup[] = [
-  { id: 'g1', name: 'Runners Milano', sport: 'running', description: 'Corriamo insieme ogni weekend', city: 'Milano', members: ['u1', 'u2', 'u3', 'u4', 'u5', 'u6'], createdBy: 'u1', createdAt: Date.now() },
-  { id: 'g2', name: 'CrossFit Zone', sport: 'gym', description: 'WOD giornalieri e motivazione', city: 'Milano', members: ['u1', 'u2', 'u3', 'u4'], createdBy: 'u2', createdAt: Date.now() },
-  { id: 'g3', name: 'Yoga Flow', sport: 'yoga', description: 'Pratiche guidate e meditazione', city: 'Milano', members: ['u1', 'u2', 'u3'], createdBy: 'u3', createdAt: Date.now() },
-  { id: 'g4', name: 'Ciclisti Navigli', sport: 'cycling', description: 'Uscite lungo i Navigli', city: 'Milano', members: ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8'], createdBy: 'u1', createdAt: Date.now() },
-  { id: 'g5', name: 'HIIT Warriors', sport: 'hiit', description: 'Allenamenti intensi da 30 min', city: 'Milano', members: ['u1', 'u2'], createdBy: 'u4', createdAt: Date.now() },
-]
-
-const DEMO_EVENTS: CommunityEvent[] = [
-  { id: 'e1', title: 'Parkrun Sempione', sport: 'running', date: Date.now() + 2 * 86_400_000, time: '08:00', location: 'Parco Sempione, ingresso Arco della Pace', city: 'Milano', description: '5K per tutti i livelli', participants: ['u1', 'u2', 'u3', 'u4', 'u5'], createdBy: 'u1', createdAt: Date.now() },
-  { id: 'e2', title: 'Yoga al Tramonto', sport: 'yoga', date: Date.now() + 4 * 86_400_000, time: '18:30', location: 'Giardini Indro Montanelli', city: 'Milano', description: 'Sessione open-air gratuita', participants: ['u1', 'u2', 'u3'], createdBy: 'u3', createdAt: Date.now() },
-  { id: 'e3', title: 'Giro dei Navigli', sport: 'cycling', date: Date.now() + 7 * 86_400_000, time: '09:00', location: 'Darsena, Milano', city: 'Milano', description: '40km rilassati lungo i Navigli', participants: ['u1', 'u2', 'u3', 'u4', 'u5', 'u6'], createdBy: 'u2', createdAt: Date.now() },
-]
 
 const SPORT_CARD_COLORS: Record<string, [string, string]> = {
   running: ['#FFF7ED', '#EA580C'],
@@ -118,12 +95,12 @@ export default function CommunityPage() {
 
   const loadGroups = useCallback(async () => {
     const data = await withTimeout(getGroups(city)).catch(() => [])
-    setGroups(data.length > 0 ? data : DEMO_GROUPS)
+    setGroups(data)
   }, [city])
 
   const loadEvents = useCallback(async () => {
     const data = await withTimeout(getEvents(city)).catch(() => [])
-    setEvents(data.length > 0 ? data : DEMO_EVENTS)
+    setEvents(data)
   }, [city])
 
   useEffect(() => {
@@ -134,7 +111,7 @@ export default function CommunityPage() {
         loadGroups(),
         loadEvents(),
       ])
-      const realFeed = feedData.length > 0 ? feedData : DEMO_STORIES
+      const realFeed = feedData
       setFeed(realFeed)
       // Stories = deduplicated by user
       const seen = new Set<string>()
@@ -426,6 +403,11 @@ export default function CommunityPage() {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', padding: '0 20px 4px', scrollbarWidth: 'none' }}>
+          {groups.length === 0 && (
+            <p style={{ fontSize: '13px', color: 'var(--text-sub)', textAlign: 'center', padding: '20px', width: '100%' }}>
+              Nessun gruppo nella tua zona — creane uno! 👥
+            </p>
+          )}
           {groups.map((g, gi) => {
             const isMember = user ? g.members.includes(user.uid) : false
             const [sBg, sColor] = SPORT_CARD_COLORS[g.sport] ?? ['var(--indigo-light)', 'var(--indigo)']
@@ -518,6 +500,11 @@ export default function CommunityPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {events.length === 0 && (
+            <p style={{ fontSize: '13px', color: 'var(--text-sub)', textAlign: 'center', padding: '20px' }}>
+              Nessun evento in programma — organizzane uno! 📅
+            </p>
+          )}
           {events.slice(0, 3).map(ev => {
             const isParticipant = user ? ev.participants.includes(user.uid) : false
             const d = new Date(ev.date)
@@ -603,6 +590,13 @@ export default function CommunityPage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {feed.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>🏋️</div>
+              <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', fontFamily: "'Sora', sans-serif", marginBottom: '6px' }}>Il feed è vuoto</p>
+              <p style={{ fontSize: '13px', color: 'var(--text-sub)', lineHeight: 1.4 }}>Registra un allenamento per iniziare!</p>
+            </div>
+          )}
           {feed.slice(0, 5).map(entry => (
             <div key={entry.id} style={{
               background: 'var(--bg-card)', borderRadius: 'var(--radius)',

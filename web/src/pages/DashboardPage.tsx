@@ -712,14 +712,7 @@ export default function DashboardPage() {
 
       {/* ══ ATTIVI ORA ══ */}
       {(() => {
-        const DEMO_ONLINE: FeedEntry[] = [
-          { id: 'd1', userId: 'u1', userName: 'Luca M.', date: new Date().toISOString().slice(0,10), workoutTypes: ['running'], steps: 8423, calories: 420, distance: 6.2, duration: 38, reactions: {}, createdAt: Date.now() - 900000 },
-          { id: 'd2', userId: 'u2', userName: 'Sara T.', date: new Date().toISOString().slice(0,10), workoutTypes: ['gym'], steps: 4120, calories: 310, distance: 0, duration: 55, reactions: {}, createdAt: Date.now() - 1800000 },
-          { id: 'd3', userId: 'u3', userName: 'Marco B.', date: new Date().toISOString().slice(0,10), workoutTypes: ['cycling'], steps: 2340, calories: 580, distance: 22.1, duration: 70, reactions: {}, createdAt: Date.now() - 3600000 },
-          { id: 'd4', userId: 'u4', userName: 'Giulia R.', date: new Date().toISOString().slice(0,10), workoutTypes: ['hiit'], steps: 5600, calories: 450, distance: 0, duration: 30, reactions: {}, createdAt: Date.now() - 5400000 },
-          { id: 'd5', userId: 'u5', userName: 'Alex D.', date: new Date().toISOString().slice(0,10), workoutTypes: ['running'], steps: 11200, calories: 620, distance: 8.8, duration: 52, reactions: {}, createdAt: Date.now() - 7200000 },
-        ]
-        const displayed = onlineUsers.length > 0 ? onlineUsers : DEMO_ONLINE
+        const displayed = onlineUsers
         const SPORT_EMOJI: Record<string, string> = { running: '🏃', gym: '💪', cycling: '🚴', hiit: '⚡', walking: '🚶', other: '🏋️' }
         const timeAgo = (ts: number) => {
           const m = Math.floor((Date.now() - ts) / 60000)
@@ -749,6 +742,11 @@ export default function DashboardPage() {
               boxShadow: 'var(--shadow-card)',
               overflow: 'hidden',
             }}>
+              {displayed.length === 0 && (
+                <p style={{ fontSize: '13px', color: 'var(--text-sub)', textAlign: 'center', padding: '24px 20px' }}>
+                  Nessun amico attivo al momento
+                </p>
+              )}
               {displayed.map((u, i) => {
                 const sportEmoji = SPORT_EMOJI[u.workoutTypes?.[0]] ?? '🏋️'
                 const col = ringCol(u.userId)

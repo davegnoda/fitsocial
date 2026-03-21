@@ -4,9 +4,10 @@ import { getActiveChallenges, joinChallenge } from '../services/challengeService
 import { getTopUsers, getTopUsersByRecentActivity } from '../services/userService'
 import LeaderboardCard from '../components/LeaderboardCard'
 import CreateChallengeModal from '../components/CreateChallengeModal'
+import CreateDuelModal from '../components/CreateDuelModal'
 import Layout from '../components/Layout'
 import { getUserDuels } from '../services/duelService'
-import type { Challenge, UserProfile, Duel } from '../types'
+import type { Challenge, UserProfile, Duel, StreakBattle } from '../types'
 
 const TYPE_ICONS: Record<string, string> = { steps: '👟', calories: '🔥', distance: '📍', workouts: '💪' }
 const TYPE_COLORS: Record<string, string> = { steps: '#F97316', distance: '#3B82F6', calories: '#EF4444', workouts: '#7C3AED' }
@@ -18,68 +19,18 @@ const AVATAR_COLORS = ['#4F46E5', '#0D9488', '#EA580C', '#DB2777', '#6D28D9', '#
 const DUEL_TYPE_ICONS: Record<string, string> = { steps: '👟', calories: '🔥', distance: '📍' }
 const DUEL_TYPE_UNITS: Record<string, string> = { steps: 'passi', calories: 'kcal', distance: 'km' }
 
-const DEMO_DUELS: Duel[] = [
-  {
-    id: 'demo-d1', challenger: 'u1', challengerName: 'Marco R.', opponent: 'u2', opponentName: 'Luca B.',
-    type: 'steps', duration: '24h', status: 'active',
-    scores: { u1: 6420, u2: 5180 }, createdAt: Date.now() - 3600000 * 8,
-    endsAt: Date.now() + 3600000 * 16,
-  },
-  {
-    id: 'demo-d2', challenger: 'u3', challengerName: 'Sara M.', opponent: 'demo-user', opponentName: 'Tu',
-    type: 'calories', duration: '48h', status: 'pending',
-    scores: { u3: 0, 'demo-user': 0 }, createdAt: Date.now() - 3600000,
-    endsAt: 0,
-  },
-  {
-    id: 'demo-d3', challenger: 'u4', challengerName: 'Andrea P.', opponent: 'u5', opponentName: 'Giulia F.',
-    type: 'distance', duration: '7d', status: 'active',
-    bet: { amount: 5, currency: 'EUR' },
-    scores: { u4: 12, u5: 18 }, createdAt: Date.now() - 86400000 * 2,
-    endsAt: Date.now() + 86400000 * 5,
-  },
-]
-
-const DEMO_CHALLENGES: Challenge[] = [
-  {
-    id: 'demo-1', title: '10.000 Passi al Giorno',
-    type: 'steps', period: 'daily', fitnessLevel: 'all', target: 10000,
-    participants: Array.from({ length: 1247 }, (_, i) => `u${i}`),
-    prize: { type: 'sponsored', value: '€50 Gift Card', brandName: 'Nike', amount: 50 },
-    leaderboard: [], startDate: Date.now() - 86400000 * 2, endDate: Date.now() + 86400000 * 5,
-  },
-  {
-    id: 'demo-2', title: 'Corri 30km in una Settimana',
-    type: 'distance', period: 'weekly', fitnessLevel: 'intermediate', target: 30,
-    participants: Array.from({ length: 342 }, (_, i) => `u${i}`),
-    prize: { type: 'sponsored', value: '€100 Store Credit', brandName: 'Adidas', amount: 100 },
-    leaderboard: [], startDate: Date.now() - 86400000 * 3, endDate: Date.now() + 86400000 * 4,
-  },
-  {
-    id: 'demo-3', title: '5 Allenamenti questa Settimana',
-    type: 'workouts', period: 'weekly', fitnessLevel: 'beginner', target: 5,
-    participants: Array.from({ length: 89 }, (_, i) => `u${i}`),
-    prize: { type: 'pool', value: 'Kit MyProtein Gratis', amount: 0 },
-    leaderboard: [], startDate: Date.now() - 86400000, endDate: Date.now() + 86400000 * 6,
-  },
-  {
-    id: 'demo-4', title: 'Brucia 500 Kcal al Giorno',
-    type: 'calories', period: 'daily', fitnessLevel: 'advanced', target: 500,
-    participants: Array.from({ length: 28 }, (_, i) => `u${i}`),
-    prize: { type: 'sponsored', value: '€200 Abbonamento Gym', brandName: 'Virgin Active', amount: 200 },
-    leaderboard: [], startDate: Date.now() - 86400000 * 4, endDate: Date.now() + 86400000 * 3,
-  },
-]
 
 export default function ChallengesPage() {
   const { user } = useAuth()
   const [challenges, setChallenges] = useState<Challenge[]>([])
   const [loading, setLoading] = useState(true)
   const [joining, setJoining] = useState<string | null>(null)
-  const [tab, setTab] = useState<'sfide' | 'global' | 'duelli'>('sfide')
+  const [tab, setTab] = useState<'sfide' | 'global' | 'duelli' | 'streak'>('sfide')
   const [duels, setDuels] = useState<Duel[]>([])
+  const [streakBattles] = useState<StreakBattle[]>([])
   const [topUsers, setTopUsers] = useState<UserProfile[]>([])
   const [showCreate, setShowCreate] = useState(false)
+  const [showCreateDuel, setShowCreateDuel] = useState(false)
   const [globalPeriod, setGlobalPeriod] = useState<'always' | 'week' | 'month'>('always')
   const [rankedUsers, setRankedUsers] = useState<(UserProfile & { recentSteps?: number })[]>([])
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -119,7 +70,7 @@ export default function ChallengesPage() {
     return d <= 1 ? '1 giorno' : `${d} giorni`
   }
 
-  const TABS = [{ key: 'sfide', label: 'Sfide' }, { key: 'global', label: 'Globale' }, { key: 'duelli', label: 'Duelli' }]
+  const TABS = [{ key: 'sfide', label: 'Sfide' }, { key: 'global', label: 'Globale' }, { key: 'duelli', label: 'Duelli' }, { key: 'streak', label: 'Streak' }]
 
   const formatCountdown = (endsAt: number) => {
     const diff = endsAt - Date.now()
@@ -172,7 +123,10 @@ export default function ChallengesPage() {
           ))}
         </div>
 
-        <button onClick={() => setShowCreate(true)}
+        <button onClick={() => {
+            if (tab === 'duelli') setShowCreateDuel(true)
+            else setShowCreate(true)
+          }}
           style={{
             background: 'var(--gradient)',
             color: 'white',
@@ -187,7 +141,7 @@ export default function ChallengesPage() {
             width: '100%',
             marginTop: '12px',
           }}>
-          + Crea Sfida
+          {tab === 'duelli' ? '+ Crea Duello ⚔️' : tab === 'streak' ? '+ Crea Streak Battle 🔥' : '+ Crea Sfida'}
         </button>
       </div>
 
@@ -275,13 +229,19 @@ export default function ChallengesPage() {
 
         {/* DUELS TAB */}
         {!loading && tab === 'duelli' && (() => {
-          const allDuels = duels.length > 0 ? duels : DEMO_DUELS
           return (
             <div>
               <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '12px' }}>
-                ⚔️ I tuoi duelli · {allDuels.length}
+                ⚔️ I tuoi duelli · {duels.length}
               </p>
-              {allDuels.map((d, idx) => {
+              {duels.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚔️</div>
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', fontFamily: "'Sora', sans-serif", marginBottom: '6px' }}>Nessun duello attivo</p>
+                  <p style={{ fontSize: '13px', color: 'var(--text-sub)', lineHeight: 1.4 }}>Sfida un amico in un duello 1v1!</p>
+                </div>
+              )}
+              {duels.map((d, idx) => {
                 const icon = DUEL_TYPE_ICONS[d.type] ?? '🏆'
                 const unit = DUEL_TYPE_UNITS[d.type] ?? ''
                 const cScore = d.scores[d.challenger] ?? 0
@@ -456,7 +416,14 @@ export default function ChallengesPage() {
         })()}
 
         {/* CHALLENGES TAB */}
-        {!loading && tab === 'sfide' && (challenges.length > 0 ? challenges : DEMO_CHALLENGES).map((c, idx) => {
+        {!loading && tab === 'sfide' && challenges.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🏆</div>
+            <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', fontFamily: "'Sora', sans-serif", marginBottom: '6px' }}>Nessuna sfida disponibile</p>
+            <p style={{ fontSize: '13px', color: 'var(--text-sub)', lineHeight: 1.4 }}>Crea la tua prima sfida!</p>
+          </div>
+        )}
+        {!loading && tab === 'sfide' && challenges.map((c, idx) => {
           const isParticipant = user ? c.participants.includes(user.uid) : false
           const progressPct = Math.min(100, Math.round((Date.now() - c.startDate) / (c.endDate - c.startDate) * 100))
           const iconColor = TYPE_COLORS[c.type] ?? 'var(--indigo)'
@@ -622,10 +589,114 @@ export default function ChallengesPage() {
             </div>
           )
         })}
+
+        {/* STREAK BATTLES TAB */}
+        {!loading && tab === 'streak' && (
+          <div>
+            <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-sub)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '12px' }}>
+              🔥 Streak Battles · {streakBattles.length}
+            </p>
+            {streakBattles.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}>
+                <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔥</div>
+                <p style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text)', fontFamily: "'Sora', sans-serif", marginBottom: '8px' }}>Streak Battles</p>
+                <p style={{ fontSize: '13px', color: 'var(--text-sub)', lineHeight: 1.5, maxWidth: '280px', margin: '0 auto 16px' }}>
+                  Sfida i tuoi amici: allenati ogni giorno o sei eliminato! Ultimo sopravvissuto vince.
+                </p>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
+                  {['Giorno 1 → Tutti dentro', 'Salti? → Eliminato', 'Ultimo in piedi → Vince 🏆'].map(step => (
+                    <span key={step} style={{
+                      fontSize: '11px', fontWeight: 600, color: 'var(--indigo)',
+                      background: 'var(--indigo-light)', padding: '5px 12px',
+                      borderRadius: '20px',
+                    }}>
+                      {step}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {streakBattles.map((sb, idx) => {
+              const survivorPct = sb.participants.length > 0 ? Math.round((sb.survivors.length / sb.participants.length) * 100) : 0
+              return (
+                <div key={sb.id} style={{
+                  background: 'var(--bg-card)',
+                  borderRadius: 'var(--radius)',
+                  border: '1px solid var(--border)',
+                  boxShadow: 'var(--shadow-card)',
+                  padding: '16px 18px',
+                  marginBottom: '12px',
+                  animation: 'slide-up 0.3s ease',
+                  animationDelay: `${idx * 0.05}s`,
+                  animationFillMode: 'both',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <span style={{
+                      fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                      padding: '3px 10px', borderRadius: '20px',
+                      background: sb.status === 'active' ? 'rgba(16,185,129,0.12)' : 'rgba(107,114,128,0.12)',
+                      color: sb.status === 'active' ? '#10B981' : '#6B7280',
+                    }}>
+                      {sb.status === 'active' ? '● ATTIVO' : 'COMPLETATO'}
+                    </span>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-sub)' }}>
+                      Iniziata: {new Date(sb.startDate).toLocaleDateString('it-IT')}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '28px' }}>🔥</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', fontFamily: "'Sora', sans-serif" }}>
+                        {sb.survivors.length}/{sb.participants.length} sopravvissuti
+                      </p>
+                      <p style={{ fontSize: '11px', color: 'var(--text-sub)' }}>
+                        {sb.eliminated.length} eliminati
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ height: '8px', borderRadius: '4px', overflow: 'hidden', background: 'var(--bg-surface)', marginBottom: '12px' }}>
+                    <div style={{
+                      width: `${survivorPct}%`, height: '100%',
+                      background: 'linear-gradient(90deg, #F59E0B, #EF4444)',
+                      borderRadius: '4px',
+                      transition: 'width 0.8s ease',
+                    }} />
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {sb.survivors.slice(0, 6).map((uid, si) => (
+                      <div key={uid} style={{
+                        width: '28px', height: '28px', borderRadius: '50%',
+                        background: AVATAR_COLORS[si % AVATAR_COLORS.length],
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontSize: '10px', fontWeight: 700,
+                        fontFamily: "'Sora', sans-serif",
+                        border: '2px solid var(--bg-card)',
+                        marginLeft: si === 0 ? 0 : -6,
+                      }}>
+                        {uid.slice(0, 2).toUpperCase()}
+                      </div>
+                    ))}
+                    {sb.survivors.length > 6 && (
+                      <span style={{ fontSize: '11px', color: 'var(--text-sub)', fontWeight: 600, marginLeft: '4px' }}>
+                        +{sb.survivors.length - 6}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {showCreate && (
         <CreateChallengeModal onSave={() => load()} onClose={() => setShowCreate(false)} />
+      )}
+      {showCreateDuel && (
+        <CreateDuelModal onClose={() => setShowCreateDuel(false)} onCreated={() => { setShowCreateDuel(false) }} />
       )}
     </Layout>
   )
